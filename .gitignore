@@ -1,0 +1,9 @@
+*.o
+*.dmp
+Log/
+boxout/
+demo/
+demo.zip
+build-OtcTradeClientRaw-Desktop_Qt_5_9_7_MinGW_32bit-Debug/
+build-OtcTradeClientRaw-Desktop_Qt_5_9_7_MinGW_32bit-Profile/
+build-OtcTradeClientRaw-Desktop_Qt_5_9_7_MSVC2015_32bit-Debug/
