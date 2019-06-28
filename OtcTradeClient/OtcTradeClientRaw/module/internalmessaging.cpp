@@ -4,6 +4,7 @@
 #include "qlibrary.h"
 #include "./util/decodeinnermsg.h"
 #include "otcoptionmodule.h"
+#include "decodeinnermsg.h"
 #include <algorithm>
 
 InternalSenderReceiver* g_internalSenderReceiver = nullptr;

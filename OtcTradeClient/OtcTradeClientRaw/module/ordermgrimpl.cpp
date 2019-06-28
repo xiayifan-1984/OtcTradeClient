@@ -514,12 +514,6 @@ int		QOrderMgrImpl::InsertOrder(tagXTInputOrderField* pIn)
         pIn->PriceType,pIn->LimitPrice,pIn->Volume, pIn->HedgeFlag
         );
     */
-    tagXTQryInvestorPositionField oField;
-    memset(&oField, 0, sizeof(oField));
-    oField.BrokerID = pIn->BrokerID;
-    strcpy(oField.UserID , pIn->UserID);
-
-    m_pTradeApi->ReqQryInvestorPosition(&oField, ++m_nRequestID);
     qDebug() << " Insert order ID " << m_nRequestID;
     int iret =(-1);
     if (m_pTradeApi)
