@@ -47,7 +47,7 @@ public:
     virtual     int         VerifyExCode(tagXTInstrument& inout) = 0;
     virtual     QExchange*  GetExchange(int exchid) = 0;
     virtual     int         GetOneName(tagXTInstrument& oExCode, char* pname) =0;
-
+    virtual     std::vector<tagXTInstrument>& GetCodeList() = 0;
 };
 
 

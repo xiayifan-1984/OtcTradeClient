@@ -21,7 +21,7 @@ static void transOrder(tagXTInputOrderField& inputOrder, tagXTOrderField& output
 //排序依据:
 //21:00 --24:00 第一梯队   00：00- 16:00 第二梯队
 //梯队小的靠前，如果梯队一致，则时间小的靠前   (之所以不用日期，是因为CZCE 的夜盘，使用的是第二天的日期)
-bool OrderLower(tagXTOrderField& a, tagXTOrderField& b)
+bool OrderLower(const tagXTOrderField& a, const tagXTOrderField& b)
 {
     int levelone = 0;
     int leveltwo = 0;
@@ -41,7 +41,7 @@ bool OrderLower(tagXTOrderField& a, tagXTOrderField& b)
     }
     else if (levelone == leveltwo)
     {
-        if (a.InsertTime < b.InsertTime)
+        if (a.InsertTime <= b.InsertTime)
             return false;
 
         return true;

@@ -19,3 +19,11 @@ std::string stool::strToUpper(std::string str)
     std::transform(str.begin(), str.end(), str.begin(), ::toupper);
     return str;
 }
+
+std::string stool::uniqueUserId(int broker, int type, char *user)
+{
+    std::string result(user);
+    result += std::to_string(broker);
+    result += std::to_string(type);
+    return result;
+}

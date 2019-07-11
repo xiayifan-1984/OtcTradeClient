@@ -174,9 +174,9 @@ void        QOrderMgrImpl::OnRspQryOrder(tagXTOrderField *pOrder, tagXTRspInfoFi
             string strkey = pOrder->OrderRef;
             if (strkey.length() >0)
             {
-                m_mapBrachOrder.insert(make_pair(pOrder->BrokerOrderSeq, *pOrder));
+                m_mapBrachOrder.insert(make_pair(strkey, *pOrder));
 
-                m_mapOrder.insert( make_pair(strkey, pOrder->BrokerOrderSeq) );
+                m_mapOrder.insert( make_pair(strkey, strkey) );
             }
         }
 
@@ -302,14 +302,15 @@ void        QOrderMgrImpl::OnRtnOrder(tagXTOrderField *pOrder)
         int newtradevol = pOrder->VolumeTraded;
         char newstatus = pOrder->OrderStatus;
 
-        map<int, tagXTOrderField>::iterator itb = m_mapBrachOrder.find(pOrder->BrokerOrderSeq);
+        auto itb = m_mapBrachOrder.find(strkey);
+        qDebug() << "order key = " << pOrder->OrderRef;
         if (itb == m_mapBrachOrder.end())
         {
             //New
             QEventCenter* pEventCenter = GetEventCenter();
             OrderEventArgs* e = new OrderEventArgs(CET_Order);
             e->subevent = ORDER_EVENT_NEW;
-
+            qDebug() << "New order incoming , " << pOrder->OrderRef;
             strcpy(e->orderref, pOrder->OrderRef);
             e->hastrade = (newtradevol >0);
             e->usertype = m_nusertype;
@@ -321,13 +322,14 @@ void        QOrderMgrImpl::OnRtnOrder(tagXTOrderField *pOrder)
         else
         {
             //Compare
+            qDebug() << "order updating , " << pOrder->OrderRef << " ,new status = " << newstatus << " , curStatus = "<<itb->second.OrderStatus;
             if (newstatus != itb->second.OrderStatus || newtradevol != itb->second.VolumeTraded)
             {
                 //update
                 QEventCenter* pEventCenter = GetEventCenter();
                 OrderEventArgs* e = new OrderEventArgs(CET_Order);
                 e->subevent = ORDER_EVENT_UPDATE;
-
+                qDebug() << "order updating coming!";
                 strcpy(e->orderref, pOrder->OrderRef);
                 e->hastrade = (newtradevol- itb->second.VolumeTraded) >0;
 
@@ -337,8 +339,8 @@ void        QOrderMgrImpl::OnRtnOrder(tagXTOrderField *pOrder)
                 pEventCenter->PostOrderMessage(e);
             }
         }
-        m_mapBrachOrder[pOrder->BrokerOrderSeq] = *pOrder;
-        m_mapOrder[strkey] = pOrder->BrokerOrderSeq;
+        m_mapBrachOrder[strkey] = *pOrder;
+        m_mapOrder[strkey] = strkey;
 
     }
 }
@@ -550,7 +552,7 @@ int		QOrderMgrImpl::GetAllOrder(tagXTOrderField* pArr, int nCount)
 
     int nmin = min(nsize, nCount);
     int i =0;
-    map<int, tagXTOrderField>::iterator itb = m_mapBrachOrder.begin();
+    auto itb = m_mapBrachOrder.begin();
     while (itb != m_mapBrachOrder.end())
     {
         if (i >= nmin)
@@ -623,7 +625,7 @@ int		QOrderMgrImpl::GetOneOrder(const char* pszOrderRef, tagXTOrderField& oOut)
 {
     int iret = -1;
     string strkey = pszOrderRef;
-    map<string, int>::iterator itb = m_mapOrder.find(strkey);
+    auto itb = m_mapOrder.find(strkey);
     if (itb != m_mapOrder.end() )
     {
         iret =1;

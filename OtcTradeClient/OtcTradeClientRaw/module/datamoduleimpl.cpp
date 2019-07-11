@@ -45,7 +45,7 @@ int         QDataModuleImpl::StartWork()
 		m_arrExch.push_back(static_cast<QExchange*>(p));
 	}
 
-
+    initCodeList();
 	return 1;
 }
 
@@ -127,4 +127,24 @@ int         QDataModuleImpl::GetOneName(tagXTInstrument& oExCode, char* pname)
     }
 
     return -1;
+}
+
+std::vector<tagXTInstrument>& QDataModuleImpl::GetCodeList()
+{
+    return m_codeForAllExchanges;
+}
+
+void QDataModuleImpl::initCodeList()
+{
+    for(auto pExchange:m_arrExch)
+    {
+        int ncount = pExchange->GetCodeList(nullptr, 0);
+        tagXTInstrument* pArr = new tagXTInstrument[ncount];
+        ncount = pExchange->GetCodeList(pArr, ncount);
+        for(int idx = 0; idx < ncount; ++idx)
+        {
+            m_codeForAllExchanges.push_back(pArr[idx]);
+        }
+        delete [] pArr;
+    }
 }

@@ -56,7 +56,10 @@ void        SelectMainContract::initControls()
 void     SelectMainContract::initListCode()
 {
     vector<tagXTInstrument> arrExCode;
-    int ncount = GetConfigModule()->GetAllMainContract(arrExCode);
+    //int ncount = GetConfigModule()->GetAllMainContract(arrExCode);
+    arrExCode = GetDataModule()->GetCodeList();
+    auto ncount = arrExCode.size();
+    //int ncount = GetDataModule()->
     for(int i=0; i<ncount; i++)
     {
         tagXTInstrument oExCode = arrExCode[i];

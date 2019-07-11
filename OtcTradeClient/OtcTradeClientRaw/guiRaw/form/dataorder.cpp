@@ -211,7 +211,7 @@ void    MultiOrderWidget::on_tableview_doubleClicked(const QModelIndex& index)
             {
                 //弹出对话框确认
                 QString strMsg;
-                strMsg.sprintf("是否对委托单<font color='red'>[%d]</font>进行撤单?", p->BrokerOrderSeq);
+                strMsg.sprintf("是否对委托单<font color='red'>[%d]</font>进行撤单?", p->OrderRef);
                 QMessageBox::StandardButton rb = QMessageBox::warning(nullptr, "撤单提醒",strMsg, QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
                 if(rb == QMessageBox::Yes)
                 {

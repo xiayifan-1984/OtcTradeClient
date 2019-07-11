@@ -15,7 +15,8 @@ HEADERS += \
     $$PWD/viewOtcPosition.h \
     $$PWD/modeldataorder.h \
     $$PWD/modeldatatrade.h \
-    $$PWD/modeldataposition.h
+    $$PWD/modeldataposition.h \
+    $$PWD/otcriskcalc.h
 
 SOURCES += \
     $$PWD/debugquote.cpp \
@@ -30,4 +31,5 @@ SOURCES += \
     $$PWD/viewOtcPosition.cpp \
     $$PWD/modeldataorder.cpp \
     $$PWD/modeldatatrade.cpp \
-    $$PWD/modeldataposition.cpp
+    $$PWD/modeldataposition.cpp \
+    $$PWD/otcriskcalc.cpp

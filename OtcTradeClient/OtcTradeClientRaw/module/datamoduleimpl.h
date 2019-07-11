@@ -19,10 +19,13 @@ public:
     int         VerifyExCode(tagXTInstrument& inout);
     QExchange*  GetExchange(int exchid);
     int         GetOneName(tagXTInstrument& oExCode, char* pname);
+    std::vector<tagXTInstrument>& GetCodeList();
 
 protected:
 	std::vector<QExchange*>  m_arrExch;
 	char        m_szDataDir[255];
+    std::vector<tagXTInstrument> m_codeForAllExchanges;
+    void        initCodeList();
 
 };
 

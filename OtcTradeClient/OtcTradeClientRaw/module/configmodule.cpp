@@ -71,10 +71,14 @@ void    QConfigModule::initTradeUser()
 {
     //[1]
     strcpy(s.TradeLine, g.UserDir);
+    strcat(s.TradeLine, g.CurUser);
+    strcat(s.TradeLine, "/");
     strcat(s.TradeLine, "TradeLine.ini");
 
     //[2]
     strcpy(s.TradeUser, g.UserDir);
+    strcat(s.TradeUser, g.CurUser);
+    strcat(s.TradeUser, "/");
     strcat(s.TradeUser, "TradeUser.ini");
 
     //[3]

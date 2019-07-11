@@ -6,6 +6,7 @@
 #include <string>
 #include <utility>
 #include <unordered_map>
+#include <set>
 using namespace std;
 
 //================================================================================================================================================================================================================================================================================
@@ -26,6 +27,7 @@ typedef struct
 
     char        ShareDataDir[255];      //共享数据目录
     char        UserDir[255];           //当前用户目录
+    char        CurUser[255];
 }tagGlobalSetting;
 
 typedef struct
@@ -81,6 +83,7 @@ public:
     double                      getRiskVol(tagXTInstrument& code);
 
 
+
 public:
     tagGlobalSetting            g;
     tagSessionSetting           s;
@@ -96,6 +99,7 @@ protected:
 
 protected:
     vector<tagOneTradeUser>     m_arrTradeUser;
+    unordered_map<string, vector<string>> m_tradableProducts;
     vector<tagXTInstrument>     m_arrMainContract;
     unordered_map<string, vector<pair<string, string>>> m_tradeTimeSection;
     unordered_map<string, double> m_instRiskVols;

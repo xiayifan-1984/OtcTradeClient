@@ -142,7 +142,9 @@ void LoginDialog::on_btnLogin_clicked()
     //当登陆按钮点击,检查用户名和密码
     QString strUser = ui->editUser->text();
     QString strPwd = ui->editPwd->text();
-    if(strUser != "pengdk")
+    memset(GetConfigModule()->g.CurUser, 0, 255);
+    memcpy(GetConfigModule()->g.CurUser, strUser.toLatin1().data(), strUser.size());
+    if(strUser != "pengdk" && strUser != "xiayf")
     {
         QMessageBox::critical(nullptr, "Error", " Incorrect username or password");
         return;

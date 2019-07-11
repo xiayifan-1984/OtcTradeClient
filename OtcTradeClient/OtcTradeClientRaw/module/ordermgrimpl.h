@@ -79,8 +79,8 @@ protected:
     tagXTTradingAccountField					m_oTradingAccount;		//
     map<string, tagXTTradeField>				m_mapTrade;				//tradeid  ===> trade
     map<string, tagXTInvestorPositionField>     m_mapPosition;			//ex_code_longshort_hedgeflag ===> position
-    map<int,	tagXTOrderField>				m_mapBrachOrder;
-    map<string, int>                            m_mapOrder;				//orderref  ===> brokerseq
+    map<string,	tagXTOrderField>				m_mapBrachOrder;
+    map<string, string>                         m_mapOrder;				//orderref  ===> brokerseq
     map<string, otcOptPosition>                 m_mapOtcOptPositions;
 };
 
