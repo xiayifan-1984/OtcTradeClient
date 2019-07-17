@@ -88,6 +88,7 @@ private slots:
     void            showSimpleOrderBox();
     void            showInquiry();
     void            showParkOrderBox();
+    void            showRiskCalculationBox();
 
     //[debug]
     void            showSelectCommodity();

@@ -39,7 +39,7 @@ protected:
 
 protected:
     tagXTInstrument     _curselCode;
-
+    bool                m_isAllProduct;
 };
 
 

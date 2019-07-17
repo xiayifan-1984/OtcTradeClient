@@ -56,6 +56,7 @@
 #include "internalmessaging.h"
 #include <utility>
 #include <thread>
+#include "otcriskcalc.h"
 
 extern shared_ptr<KBInputBox> tradeBox;
 extern InternalSenderReceiver* GetInternalMsgSenderReceiver();
@@ -143,6 +144,8 @@ void MainWindow::createActions()
         QAction* new3 = tradeMenu->addAction(tr("Inquiry"), this, &MainWindow::showInquiry);
         new3->setStatusTip(tr("Show a new Inquiry window"));
 
+        QAction* new4 = tradeMenu->addAction(tr("OtcRiskCalculation"), this, &MainWindow::showRiskCalculationBox);
+        new3->setStatusTip(tr("Show a new Inquiry window"));
       //  QAction* new4 = tradeMenu->addAction(tr("ParkOrderBox"), this, &MainWindow::showParkOrderBox);
       //  new4->setStatusTip(tr("Show a new ParkOrderBox window"));
         //@@@@@@@@@@@@@
@@ -293,6 +296,15 @@ void    MainWindow::showInquiry()
 void MainWindow::showParkOrderBox()
 {
     //reserved for parked order
+}
+
+void MainWindow::showRiskCalculationBox()
+{
+    OtcRiskCalc* child = new OtcRiskCalc();
+    mdiArea->addSubWindow(child);
+    child->setWindowTitle(tr("OtcRiskCaculationTab"));
+    child->show();
+    mdiArea->activeSubWindow()->resize(800,200);
 }
 
 void      MainWindow::ShowMDIContainer()

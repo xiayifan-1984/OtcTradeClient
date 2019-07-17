@@ -144,11 +144,11 @@ void LoginDialog::on_btnLogin_clicked()
     QString strPwd = ui->editPwd->text();
     memset(GetConfigModule()->g.CurUser, 0, 255);
     memcpy(GetConfigModule()->g.CurUser, strUser.toLatin1().data(), strUser.size());
-    if(strUser != "pengdk" && strUser != "xiayf")
-    {
-        QMessageBox::critical(nullptr, "Error", " Incorrect username or password");
-        return;
-    }
+ //   if(strUser != "user")
+  //  {
+  //      QMessageBox::critical(nullptr, "Error", " Incorrect username or password");
+  //      return;
+ //   }
 
     ui->btnLogin->setEnabled(false);    //防止多次点击
 
@@ -185,6 +185,14 @@ void    LoginDialog::onTimer()
 
             //配置模块重新载入
             GetConfigModule()->ReloadTradeUser();
+
+            vector<tagOneTradeUser> arrUser;
+            int numUsers = GetConfigModule()->GetAllTradeUser(arrUser);
+            if(numUsers <= 0 )
+            {
+                QMessageBox::critical(nullptr, "Error", " Incorrect username or password");
+                return;
+            }
 
             //初始化交易模块
             GetTradeModule()->Reload( GetConfigModule()->s.TradeLine, GetConfigModule()->s.TradeUser );

@@ -10,6 +10,7 @@
 #include "eventcentermodule.h"
 #include <memory>
 #include <iostream>
+#include "XTCodec.h"
 
 extern std::shared_ptr<KBInputBox> tradeBox;
 extern QOrderMgr* getOrderMgrbyInstrument(tagXTInstrument&);
@@ -547,7 +548,9 @@ void            KBInputBox::onOrderEvent(OrderEventArgs* e)
         if (_strnicmp(e->orderref+9, "117", 3) ==0 )
         {
             QString strmsg;
-            QString str = QString::fromLocal8Bit(e->reason);
+            //QString str = QString::fromLocal8Bit(e->reason);
+            string t(e->reason);
+            QString str = XTCodec::AfGbk_ToQString(t);
             strmsg.sprintf("下单[%s]失败, ", e->orderref);
             strmsg.append(str);
             QMessageBox::critical(nullptr, "下单失败", strmsg, QMessageBox::Yes);

@@ -173,7 +173,7 @@ void   ViewRiskAvoid::onWidget_itemDoubleClicked(QTableWidgetItem* pItem)
             ptr->show();
         }
     }
-    if(row == 0 && col == 5)
+    if(row == 0 && col == 6)
     {
         if(m_curCode.ExchID<=0) return;
         QInputDialog dlg(this);

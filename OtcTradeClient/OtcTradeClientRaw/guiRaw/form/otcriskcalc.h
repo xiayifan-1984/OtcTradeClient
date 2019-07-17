@@ -34,11 +34,10 @@ protected:
     void                updateRow002_003_004_005(double);
     QOrderMgr*          getOrderMgrbyInstrument();
 
-/*
+
 protected slots:
     void                onWidget_itemDoubleClicked(QTableWidgetItem*);
    // void                ontimer();
-*/
 protected:
     QTimer*             m_pTimer;
 private:
@@ -50,7 +49,11 @@ private:
 
 public:
     void                setInstrument(tagXTInstrument&);
-    std::pair<long, long>   getRecommendPostion();
+
+private:
+    std::vector<double> m_riskCombs;
+    void updateRiskComb(double price, int row, int col);
+    void updateRiskAfterNewParaInput();
 };
 
 
