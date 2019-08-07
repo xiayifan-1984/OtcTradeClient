@@ -7,6 +7,8 @@
 typedef enum
 {
     PRICE_LASTEST = 0,
+    PRICE_BUYONE,
+    PRICE_SELLONE
 }PriceTypes;
 
 typedef enum

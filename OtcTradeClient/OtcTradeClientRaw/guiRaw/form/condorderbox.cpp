@@ -8,6 +8,14 @@ static inline QString priceType2Text(PriceTypes pType)
     {
         result += "最新价 ";
     }
+    if(pType == PRICE_BUYONE)
+    {
+        result += "买一价";
+    }
+    if(pType == PRICE_SELLONE)
+    {
+        result += "卖一价";
+    }
     return result;
 }
 
@@ -88,7 +96,7 @@ void CondOrderBox::setCurCommodity(const tagXTInstrument &oCode, void* oKBDetail
     memcpy(&m_code, &oCode, sizeof(m_code));
     memcpy(&m_oKBDetail, oKBDetail, sizeof(m_oKBDetail));
     if(!_condPrice) return;
-    if(m_oKBDetail.dyn_valid)
+   /* if(m_oKBDetail.dyn_valid)
     {
         _condPrice->setMinimum(m_oKBDetail.lowerlimitprice);
         _condPrice->setMaximum(m_oKBDetail.upperlimitprice);
@@ -96,10 +104,10 @@ void CondOrderBox::setCurCommodity(const tagXTInstrument &oCode, void* oKBDetail
         _condPrice->setSingleStep(m_oKBDetail.pricetick);
         _condPrice->setDecimals(m_oKBDetail.showdot);
     }
-    else
+    else*/
     {
         _condPrice->setMinimum(0);
-        _condPrice->setMaximum(10000);
+        _condPrice->setMaximum(10000000);
 
         _condPrice->setSingleStep(m_oKBDetail.pricetick);
         _condPrice->setDecimals(m_oKBDetail.showdot);
@@ -171,6 +179,8 @@ void CondOrderBox::initControls()
 
         _priceType = new QComboBox();
         _priceType->addItem("最新价", PRICE_LASTEST);
+        _priceType->addItem("买一价", PRICE_BUYONE);
+        _priceType->addItem("卖一价", PRICE_SELLONE);
 
         _condPrice = new QDoubleSpinBox();
 
@@ -225,6 +235,8 @@ void CondOrderBox::genOrderInfo()
 
     QString pComp(compType2Text((CompTypes)_compType->currentIndex()));
     outInfo += pComp;
+
+    outInfo += " ";
 
     QString pPrice = _condPrice->text();
     outInfo += pPrice;

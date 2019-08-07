@@ -243,6 +243,15 @@ void    ParkCondOrderInput::onQuoteClick(int idx)
     double dprice =0.0;
     _drawQuote->getClickPrice(idx, dprice);
 
+    if(_chkCondOrder->isChecked())
+    {
+        if(m_condParams)
+        {
+            m_condParams->setInitPrice(dprice);
+            return;
+        }
+    }
+
     //如果未赋值初始行情
     if(!m_oKBDetail.dyn_valid)
     {

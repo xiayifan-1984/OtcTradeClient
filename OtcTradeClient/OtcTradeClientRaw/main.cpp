@@ -34,20 +34,6 @@ void requestOtcPostions()
 
 //=========================================================================================================================================================================================================================================
 
-void requestOtcPostions()
-{
-    auto loginName = stool::loginName();
-    auto innerOtcInquiry = Codeinnermsg::otcOptInquiryReq("1", 1, loginName.c_str());
-    //Sleep(10000);
-    int msgCount = 0;
-    while(msgCount < 3)
-    {
-        Sleep(1000);
-        ++msgCount;
-        GetInternalMsgSenderReceiver()->sendMsg("410", const_cast<char*>(innerOtcInquiry.c_str()), innerOtcInquiry.size());
-    }
-}
-
 long ApplicationCrashHandler(EXCEPTION_POINTERS *pException){
 {
     // 在程序exe的上级目录中创建dmp文件夹
