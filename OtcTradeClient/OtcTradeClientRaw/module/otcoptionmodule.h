@@ -12,6 +12,7 @@ public:
     OtcOptionModule();
     ~OtcOptionModule();
     std::vector<otcOptPosition> getOptPostionsByInst(std::string &inst);
+    std::vector<otcOptPosition> getOptPostionsByInstAndUser(std::string &inst, const std::string& user);
     void addOtcPosition(const otcOptPosition& pos);
     std::vector<otcOptPosition> getAllOtcPositions();
 private:

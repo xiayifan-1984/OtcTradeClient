@@ -147,12 +147,9 @@ void LoginDialog::on_btnLogin_clicked()
     QString strPwd = ui->editPwd->text();
     memset(GetConfigModule()->g.CurUser, 0, 255);
     memcpy(GetConfigModule()->g.CurUser, strUser.toLatin1().data(), strUser.size());
+
+    //login name is valid and query otc positions
     requestOtcPostions();
- //   if(strUser != "user")
-  //  {
-  //      QMessageBox::critical(nullptr, "Error", " Incorrect username or password");
-  //      return;
- //   }
 
     ui->btnLogin->setEnabled(false);    //防止多次点击
 

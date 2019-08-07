@@ -1,9 +1,10 @@
-
+﻿
 #include "configmodule.h"
 #include <QtCore>
 #include <windows.h>
 #include "XTCodec.h"
 #include "XTCodec.h"
+#include <string.h>
 #include "./optpricingapplication/futureoptdata.h"
 
 //=================================================================================================================================================================================================================================
@@ -163,7 +164,10 @@ void    QConfigModule::initClient()
     if(rootObj.contains("kafka"))
     {
         QString str = rootObj.value("kafka").toString();
+
+        memset(g.kafkaServer, '\0', 254);
         strncpy(g.kafkaServer, str.toLatin1().data(), str.size());
+        qDebug() << "kafka server = " << g.kafkaServer;
     }
 
     // read holidays

@@ -140,6 +140,7 @@ void   ViewRiskAvoid::onWidget_itemDoubleClicked(QTableWidgetItem* pItem)
             std::string str = szname;
             QString strName = XTCodec::AfGbk_ToQString(str);
             pItem->setText(strName);
+            _tblWidget->resizeColumnToContents(pItem->column());
         }
     }
     if(row ==0 && col ==1)
@@ -233,6 +234,7 @@ void ViewRiskAvoid::ontimer()
     QString ts(m_curCode.Code);
     std::string inst(XTCodec::AfUtf8_ToString(ts));
     inst = stool::strToUpper(inst);
+    auto loginName = stool::loginName();
     auto otcOpts = GetOtcOptionModule()->getOptPostionsByInst(inst);
     double totalOneGamma = 0.0;
     for(auto p = otcOpts.begin(); p != otcOpts.end(); ++p)
@@ -424,6 +426,7 @@ void    ViewRiskAvoid::initRow004()
     {
         pItem = new QTableWidgetItem();
         pItem->setTextColor(QColor(236,41,103));
+        pItem->setBackgroundColor(QColor(255,204,153));
         QString str;
         str.sprintf("%.1lf", arrData[i]);
         pItem->setText(str);
@@ -443,7 +446,9 @@ void    ViewRiskAvoid::initRow005()
     pItem->setText("超缺避");
     pItem->setTextAlignment(Qt::AlignCenter);
     pItem->setTextColor(QColor(236,41,103));
-    pItem->setBackgroundColor(QColor(255,204,153));
+    //pItem->setBackgroundColor(QColor(255,204,153));
+    //pItem->setBackgroundColor(QColor(102,255,255));
+    pItem->setBackgroundColor(QColor(250,205,205));
     _tblWidget->setItem(4, 0, pItem);
 
     for(int i=0; i<9; i++)
@@ -457,6 +462,8 @@ void    ViewRiskAvoid::initRow005()
         {
             pItem->setTextColor(QColor(0,0,0));
         }
+        //pItem->setBackgroundColor(QColor(102,255,255));
+        pItem->setBackgroundColor(QColor(250,205,205));
         QString str;
         str.sprintf("%.1lf", arrData[i]);
         pItem->setText(str);
@@ -481,8 +488,9 @@ void ViewRiskAvoid::updateRow001(int position, double one_gamma)
     _tblWidget->setItem(0, 6, pItem);
 
     pItem = new QTableWidgetItem();
-    str = QString::number(one_gamma);
+    str = QString::number(one_gamma, 'f', 2);
     pItem->setText(str);
+    _tblWidget->resizeColumnToContents(9);
     pItem->setTextColor(QColor(236,41,103));
     _tblWidget->setItem(0, 9, pItem);
 }
@@ -506,7 +514,7 @@ void ViewRiskAvoid::updateRow002_003_004_005(double cur_price)
         pExchange->GetOneNameTable(&m_curCode, &oNameCode);
         showDot = oNameCode.ShowDot;
         priceTick = oNameCode.PriceTick!=0.0 ? oNameCode.PriceTick:priceTick;
-        instMulti = oNameCode.VolumeMultiple;
+        instMulti = oNameCode.VolumeMultiple != 0 ? oNameCode.VolumeMultiple:instMulti;
     }
     qDebug()<< "price = " << cur_price << " ,priceTick = " << priceTick << " , volatility = " << m_vol;
 
@@ -674,6 +682,7 @@ void ViewRiskAvoid::updateRow002_003_004_005(double cur_price)
     std::string inst(XTCodec::AfUtf8_ToString(ts));
     qDebug()<<ts;
     inst = stool::strToUpper(inst);
+    auto loginName = stool::loginName();
     auto otcOpts = GetOtcOptionModule()->getOptPostionsByInst(inst);
     auto totolAvoidAmout = [&](double price)
     {
@@ -690,14 +699,15 @@ void ViewRiskAvoid::updateRow002_003_004_005(double cur_price)
     while(arrIdx < 9)
     {
         double diffAmount = totolAvoidAmout(arrData[arrIdx]);
-        if(arrData[arrIdx]!=0)
+        if(arrData[arrIdx]!=0.0)
             riskAvoidVolume[arrIdx] = diffAmount;
         ++arrIdx;
     }
     for(int i = 0 ; i<9 ; ++i)
     {
         pItem = new QTableWidgetItem();
-        double totalAvoid = riskAvoidVolume[i]/instMulti/arrData[i]*(-1.0); // switch trader direction to custumers'
+        auto tp = arrData[i]!=0.0 ? arrData[i]:100000.0;
+        double totalAvoid = riskAvoidVolume[i]/instMulti/tp*(-1.0); // switch trader direction to custumers'
         QString str = QString::number(totalAvoid, 'f', 2);
         pItem->setText(str);
 
@@ -706,11 +716,11 @@ void ViewRiskAvoid::updateRow002_003_004_005(double cur_price)
             pItem->setTextColor(QColor(236,41,103));
         }
         pItem->setTextAlignment(Qt::AlignCenter);
+        pItem->setBackgroundColor(QColor(255,204,153));
         _tblWidget->setItem(3, i+1, pItem);
 
         pItem = new QTableWidgetItem();
-        //auto lackVolume = (riskAvoidVolume[i]+m_position*arrData[i]*instMulti)/instMulti/arrData[i];
-        auto lackVolume = (riskAvoidVolume[i]/instMulti/arrData[i]*(-1.0)-m_position);
+        auto lackVolume = (riskAvoidVolume[i]/instMulti/tp*(-1.0)-m_position);
         str = QString::number(lackVolume, 'f', 2);
         pItem->setText(str);
         if(lackVolume<0)
@@ -719,6 +729,7 @@ void ViewRiskAvoid::updateRow002_003_004_005(double cur_price)
         }
         pItem->setTextAlignment(Qt::AlignCenter);
         _tblWidget->setItem(4, i+1, pItem);
+        pItem->setBackgroundColor(QColor(250,205,205));
     }
 }
 

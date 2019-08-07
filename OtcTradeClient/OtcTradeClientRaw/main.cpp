@@ -1,4 +1,4 @@
-#include <windows.h>
+﻿#include <windows.h>
 #include <dbghelp.h>
 
 #include <QtCore>
@@ -15,6 +15,8 @@
 #include "./util/codeinnermsg.h"
 #include "./util/XTCodec.h"
 #include "./util/stool.h"
+#include <string.h>
+#include "stool.h"
 
 void requestOtcPostions()
 {
@@ -31,6 +33,20 @@ void requestOtcPostions()
 }
 
 //=========================================================================================================================================================================================================================================
+
+void requestOtcPostions()
+{
+    auto loginName = stool::loginName();
+    auto innerOtcInquiry = Codeinnermsg::otcOptInquiryReq("1", 1, loginName.c_str());
+    //Sleep(10000);
+    int msgCount = 0;
+    while(msgCount < 3)
+    {
+        Sleep(1000);
+        ++msgCount;
+        GetInternalMsgSenderReceiver()->sendMsg("410", const_cast<char*>(innerOtcInquiry.c_str()), innerOtcInquiry.size());
+    }
+}
 
 long ApplicationCrashHandler(EXCEPTION_POINTERS *pException){
 {
@@ -105,17 +121,6 @@ void    OnInitInstance()
     GetInternalMsgSenderReceiver()->initConsumer(brokers, groupid.c_str(), internalMsgHandler,2,topics);
 
     GetInternalMsgSenderReceiver()->startConsume();
-
-/*    // Login successful, check otc position info
-    auto innerOtcInquiry = Codeinnermsg::otcOptInquiryReq("1", 1, "12346");
-    //Sleep(10000);
-    int msgCount = 0;
-    while(msgCount < 3)
-    {
-        Sleep(1000);
-        ++msgCount;
-        GetInternalMsgSenderReceiver()->sendMsg("410", const_cast<char*>(innerOtcInquiry.c_str()), innerOtcInquiry.size());
-    }*/
 
  //   GetInternalMsgSenderReceiver()->sendMsg("410", const_cast<char*>(innerOtcInquiry.c_str()), innerOtcInquiry.size());
  //   GetInternalMsgSenderReceiver()->sendMsg("410", const_cast<char*>(innerOtcInquiry.c_str()), innerOtcInquiry.size());

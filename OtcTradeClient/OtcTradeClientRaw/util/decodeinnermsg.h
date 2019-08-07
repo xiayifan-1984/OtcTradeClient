@@ -8,6 +8,8 @@ class otcOptPosition
 public:
     otcOptPosition();
     ~otcOptPosition() = default;
+    otcOptPosition(const otcOptPosition& rh);
+    otcOptPosition &operator=(const otcOptPosition& rh);
 public:
     int                  status;
     std::string          trade_no;

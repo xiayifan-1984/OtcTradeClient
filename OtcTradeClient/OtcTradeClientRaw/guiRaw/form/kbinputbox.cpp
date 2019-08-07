@@ -549,6 +549,7 @@ void            KBInputBox::onOrderEvent(OrderEventArgs* e)
             QString strmsg;
             //QString str = QString::fromLocal8Bit(e->reason);
             string t(e->reason);
+            //QString str = e->reason;
             QString str = XTCodec::AfGbk_ToQString(t);
             strmsg.sprintf("下单[%s]失败, ", e->orderref);
             strmsg.append(str);

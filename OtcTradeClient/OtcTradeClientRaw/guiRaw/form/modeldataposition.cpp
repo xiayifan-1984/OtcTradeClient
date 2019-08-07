@@ -190,7 +190,7 @@ QVariant    ModelNormalPosition::headerData(int section, Qt::Orientation orienta
         QString str = "";
         switch (section)
         {
-        case 0:str = "Code"; break;
+   /*     case 0:str = "Code"; break;
         case 1:str = "Direction"; break;
         case 2:str = "Position"; break;
         case 3:str = "YdPosition"; break;
@@ -198,7 +198,15 @@ QVariant    ModelNormalPosition::headerData(int section, Qt::Orientation orienta
         case 5:str = "Cost"; break;
         case 6:str = "Profit"; break;
         case 7:str = "Hedge"; break;
-        case 8:str = "Exchange"; break;
+        case 8:str = "Exchange"; break;*/
+        case 0:str = "Code"; break;
+        case 1:str = "Direction"; break;
+        case 2:str = "Position"; break;
+        case 3:str = "TodayPosition"; break;
+        case 4:str = "Cost"; break;
+        case 5:str = "Profit"; break;
+        case 6:str = "Hedge"; break;
+        case 7:str = "Exchange"; break;
         }
         return str;
     }
@@ -281,16 +289,16 @@ QVariant    ModelNormalPosition::data(const QModelIndex &index, int role) const
         }
             break;
         case 2:str.sprintf("%d", o.Position); break;
-        case 3:str.sprintf("%d", o.YdPosition); break;
-        case 4:str.sprintf("%d", o.TodayPosition); break;
-        case 5:str.sprintf("%.04lf", o.PositionCost); break;
-        case 6:str.sprintf("%.04lf", o.PositionProfit); break;
-        case 7:
+        //case 3:str.sprintf("%d", o.YdPosition); break;
+        case 3:str.sprintf("%d", o.TodayPosition); break;
+        case 4:str.sprintf("%.04lf", o.PositionCost); break;
+        case 5:str.sprintf("%.04lf", o.PositionProfit); break;
+        case 6:
         {
             str = positionUtil::getStringByHedgeFlag(o);
         }
             break;
-        case 8:
+        case 7:
         {
             QExchange* pe = GetDataModule()->GetExchange(o.ExCode.ExchID);
             if (pe)

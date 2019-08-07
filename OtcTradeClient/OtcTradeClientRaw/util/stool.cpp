@@ -39,8 +39,10 @@ std::string stool::genParkUserId(int broker, char *user)
     return key;
 }
 
-string stool::loginName()
+
+std::string stool::loginName()
 {
+
     auto pConf = GetConfigModule();
     if(pConf)
     {
@@ -48,4 +50,10 @@ string stool::loginName()
         return result;
     }
     return "";
+}
+
+string stool::strToLower(string str)
+{
+    std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+    return str;
 }

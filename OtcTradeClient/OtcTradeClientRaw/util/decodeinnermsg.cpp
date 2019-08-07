@@ -195,6 +195,56 @@ otcOptPosition::otcOptPosition()
     under_sigma = 0.01;
 }
 
+otcOptPosition::otcOptPosition(const otcOptPosition &rh)
+{
+    status = rh.status;
+    trade_no = rh.trade_no;
+    user_name = rh.user_name;
+    user_no = rh.user_no;
+    direction = rh.direction;
+    volume = rh.volume;
+    under_product = rh.under_product;
+    under_code = rh.under_code;
+    trade_date = rh.trade_date;
+    exec_type = rh.exec_type;
+    option_struct = rh.option_struct;
+    exec_date = rh.exec_date;
+    exec_price = rh.exec_price;
+    callput = rh.callput;
+    enddate = rh.enddate;
+    price = rh.price;
+    under_price = rh.under_price;
+    multi = rh.multi;
+    trader = rh.trader;
+    under_sigma = rh.under_sigma;
+}
+
+otcOptPosition &otcOptPosition::operator=(const otcOptPosition &rh)
+{
+    status = rh.status;
+    trade_no = rh.trade_no;
+    user_name = rh.user_name;
+    user_no = rh.user_no;
+    direction = rh.direction;
+    volume = rh.volume;
+    under_product = rh.under_product;
+    under_code = rh.under_code;
+    trade_date = rh.trade_date;
+    exec_type = rh.exec_type;
+    option_struct = rh.option_struct;
+    exec_date = rh.exec_date;
+    exec_price = rh.exec_price;
+    callput = rh.callput;
+    enddate = rh.enddate;
+    price = rh.price;
+    under_price = rh.under_price;
+    multi = rh.multi;
+    trader = rh.trader;
+    under_sigma = rh.under_sigma;
+
+    return *this;
+}
+
 otcOptPositionRsp::otcOptPositionRsp()
 {
     resID = "";

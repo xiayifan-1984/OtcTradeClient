@@ -131,7 +131,7 @@ void    MultiOrderWidget::initControls()
 void MultiOrderWidget::closeEvent(QCloseEvent *event)
 {
     QObject::disconnect(GetEventCenter(), SIGNAL(fireOrderEvent(OrderEventArgs*)), this, SLOT(onOrderEvent(OrderEventArgs*)) );
-
+/*
     if (_customModel)
     {
         _customModel->release();
@@ -139,6 +139,13 @@ void MultiOrderWidget::closeEvent(QCloseEvent *event)
         _customModel = nullptr;
     }
 
+    if(_acceptedOrders)
+    {
+        _acceptedOrders->release();
+        delete _acceptedOrders;
+        _acceptedOrders = nullptr;
+    }
+*/
     event->accept();
 }
 
@@ -150,7 +157,7 @@ void   MultiOrderWidget::on_combox_indexChange(int)
 
     _customModel->setOrderMgr(p);
     _acceptedOrders->setOrderMgr(p);
-    _parkedOrders->setOrderMgr(p);
+  //  _parkedOrders->setOrderMgr(p);
 }
 
 void    MultiOrderWidget::onOrderEvent(OrderEventArgs* e)
@@ -177,7 +184,7 @@ void    MultiOrderWidget::onOrderEvent(OrderEventArgs* e)
         }
         if(e->broker == broker && stricmp(e->user, szuser) == 0)
         {
-             _parkedOrders->setOrderMgr(p);
+           //  _parkedOrders->setOrderMgr(p);
         }
 
     }
