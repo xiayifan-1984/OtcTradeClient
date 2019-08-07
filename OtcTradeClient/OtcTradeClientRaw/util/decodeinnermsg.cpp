@@ -78,7 +78,7 @@ bool Decodeinnermsg::decodeOtcOptPositionRsp(const char *buf, int len, otcOptPos
                     if(subobj.contains("volume"))
                     {
                         auto val = subobj.value("volume");
-                        auto num = val.toInt();
+                        auto num = val.toDouble();
                         result.volume = num;
                     }
                     if(subobj.contains("under_product"))

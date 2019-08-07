@@ -12,8 +12,11 @@
 #include "../module/quotemodule.h"
 #include "../module/trademodule.h"
 
+#include "parkordermgr.h"
+
 #define     WM_TRADE_NOTIFY     (WM_USER+100)
 
+extern void requestOtcPostions();
 //=============================================================================================================================================================================================================================================================
 //=============================================================================================================================================================================================================================================================
 //=============================================================================================================================================================================================================================================================
@@ -144,6 +147,7 @@ void LoginDialog::on_btnLogin_clicked()
     QString strPwd = ui->editPwd->text();
     memset(GetConfigModule()->g.CurUser, 0, 255);
     memcpy(GetConfigModule()->g.CurUser, strUser.toLatin1().data(), strUser.size());
+    requestOtcPostions();
  //   if(strUser != "user")
   //  {
   //      QMessageBox::critical(nullptr, "Error", " Incorrect username or password");
@@ -192,6 +196,13 @@ void    LoginDialog::onTimer()
             {
                 QMessageBox::critical(nullptr, "Error", " Incorrect username or password");
                 return;
+            }
+
+            //initParkOrder information
+            auto pParkMgr = GetParkedOrderMgr();
+            if(pParkMgr)
+            {
+                pParkMgr->initUsers();
             }
 
             //初始化交易模块

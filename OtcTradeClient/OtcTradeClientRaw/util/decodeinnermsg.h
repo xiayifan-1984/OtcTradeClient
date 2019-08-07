@@ -14,7 +14,7 @@ public:
     std::string         user_name;
     std::string           user_no;
     int                  direction;
-    int                  volume;
+    double                  volume;
     std::string        under_product;
     std::string        under_code;
     int                trade_date;

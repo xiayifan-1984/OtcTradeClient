@@ -160,6 +160,12 @@ void    QConfigModule::initClient()
         qDebug() << "risk free rate = " << g.riskFreeRate;
     }
 
+    if(rootObj.contains("kafka"))
+    {
+        QString str = rootObj.value("kafka").toString();
+        strncpy(g.kafkaServer, str.toLatin1().data(), str.size());
+    }
+
     // read holidays
     char holidayfile[255]={0};
     strcpy(holidayfile, g.ExeDir);

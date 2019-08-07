@@ -11,6 +11,8 @@ enum CustomEventType
 {
     CET_Order = 1001,
     CET_Transact,
+    CET_ParkOrder,
+    CET_ConditionOrder,
     CET_SysNotify,
 };
 
@@ -54,6 +56,26 @@ public:
     char            orderref[16];
 };
 
+#define PARK_ORDER_NEW
+#define PARK_ORDER_ACCEPT
+#define PARK_ORDER_INSERT
+#define PARK_ORDER_CANCEL
+#define PARK_ORDER_FAIL
+
+class ParkOrderEvent: public QEvent
+{
+public:
+    explicit ParkOrderEvent(int type);
+public:
+    int             usertype;       //账号信息，一个完整的账号信息包括:账号类型，经纪商号码，账号
+    int             broker;
+    char            user[32];
+
+    int             subevent;     //委托单事件
+    int             indexId;      //indicate id of park order
+    char            reason[32];     //如果失败，失败的原因
+};
+
 //系统通知
 class SysNotifyEventArgs: public QEvent
 {
@@ -85,18 +107,19 @@ public:
 signals:
     void                        fireOrderEvent(OrderEventArgs* parg);
     void                        fireTransactEvent(TransactionEventArgs* parg);
+    void                        fireParkOrderEvent(ParkOrderEvent* event);
     void                        fireSysNotifyEvent(SysNotifyEventArgs* parg);
 
 public:
     void                        PostOrderMessage(OrderEventArgs* pargs);
     void                        PostTransactMessage(TransactionEventArgs* pargs);
+    void                        PostParkOrderMessage(ParkOrderEvent* event);
     void                        PostSysNotifyMessage(SysNotifyEventArgs* pargs);
 
 protected:
     void                        customEvent(QEvent *event);
 
 };
-
 
 extern QEventCenter*      GetEventCenter();
 

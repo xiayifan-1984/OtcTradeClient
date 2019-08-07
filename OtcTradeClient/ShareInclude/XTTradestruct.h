@@ -47,6 +47,8 @@ typedef		char		XTDirectionType;
 #define		XT_OF_ForceOff              '5'
 ///本地强平
 #define		XT_OF_LocalForceClose       '6'
+///自动开平
+#define         XT_OF_Auto                  '\0'
 
 typedef		char		XTOffsetFlagType;
 

@@ -1,5 +1,6 @@
 {
 "mode":"0",
 "volatility":"0.19",
-"riskfreerate":"0.045"
+"riskfreerate":"0.045",
+"kafka":"192.168.1.10:9092"
 }

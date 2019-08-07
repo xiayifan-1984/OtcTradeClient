@@ -16,7 +16,12 @@ HEADERS += \
     $$PWD/modeldataorder.h \
     $$PWD/modeldatatrade.h \
     $$PWD/modeldataposition.h \
-    $$PWD/otcriskcalc.h
+    $$PWD/otcriskcalc.h \
+    $$PWD/condorderbox.h \
+    $$PWD/parkcondorderinput.h \
+    $$PWD/parkedordertab.h \
+    $$PWD/condordertab.h \
+    $$PWD/dataparkcondorder.h
 
 SOURCES += \
     $$PWD/debugquote.cpp \
@@ -32,4 +37,9 @@ SOURCES += \
     $$PWD/modeldataorder.cpp \
     $$PWD/modeldatatrade.cpp \
     $$PWD/modeldataposition.cpp \
-    $$PWD/otcriskcalc.cpp
+    $$PWD/otcriskcalc.cpp \
+    $$PWD/condorderbox.cpp \
+    $$PWD/parkcondorderinput.cpp \
+    $$PWD/parkedordertab.cpp \
+    $$PWD/condordertab.cpp \
+    $$PWD/dataparkcondorder.cpp

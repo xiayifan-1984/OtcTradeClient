@@ -64,6 +64,7 @@ int      QEventCenter::Init()
 {
      QEvent::registerEventType(CET_Order);
      QEvent::registerEventType(CET_Transact);
+     QEvent::registerEventType(CET_ParkOrder);
      QEvent::registerEventType(CET_SysNotify);
 
      return 1;
@@ -102,6 +103,12 @@ void     QEventCenter::customEvent(QEvent *event)
         TransactionEventArgs* e = static_cast<TransactionEventArgs*>(event);
 
         emit fireTransactEvent(e);
+    }
+    else if(event->type() == static_cast<QEvent::Type>(CET_ParkOrder))
+    {
+        ParkOrderEvent* e = static_cast<ParkOrderEvent*>(event);
+
+        emit fireParkOrderEvent(e);
     }
     else if(event->type() == static_cast<QEvent::Type>(CET_SysNotify) )
     {

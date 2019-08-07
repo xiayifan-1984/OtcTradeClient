@@ -40,6 +40,8 @@ private slots:
     void            on_sellclosebtn_clicked();  //卖出平仓
     void            onOrderEvent(OrderEventArgs*);
     void            onAutoChkClicked();
+    void            onCondChkClicked();
+    void            onParkedChkClicked();
 
 protected:
     tagXTInstrument     m_oExCode;
@@ -74,9 +76,12 @@ protected:
     QSpinBox*       _spinVol;
     QDoubleSpinBox*       _spinPrice;
 
-    QCheckBox*      _chkAutoKP;
     QCheckBox*      _chkAny;
     QCheckBox*      _chCloseTodayOrYes;
+
+    QCheckBox*      _chkAutoKP;
+    QCheckBox*      _chkParkedOrder;
+    QCheckBox*      _chkCondOrder;
 
     QPushButton*    _btnBuyOpen;
     QPushButton*    _btnBuyClose;

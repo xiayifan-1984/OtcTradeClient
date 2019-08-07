@@ -12,9 +12,11 @@
 #include <iostream>
 #include "XTCodec.h"
 
+
 extern std::shared_ptr<KBInputBox> tradeBox;
 extern QOrderMgr* getOrderMgrbyInstrument(tagXTInstrument&);
 extern int posDirectionSign(XTPosiDirectionType);
+extern QMdiArea * G_midArea;
 
 
 KBInputBox::KBInputBox(QWidget* parent /*= nullptr*/)
@@ -75,7 +77,6 @@ void            KBInputBox::initControls()
         h1->addWidget(_spinVol, 4);
         h1->addWidget(_lblVol, 1);
 
-        _chkAutoKP = new QCheckBox(tr("自动开平"));
         g1->addLayout(h1, 2, 0, 1, 2);
        // g1->addWidget(_chkAutoKP, 2, 2);
 
@@ -128,7 +129,6 @@ void            KBInputBox::initControls()
     QObject::connect(_btnSelCode, SIGNAL(clicked()), this, SLOT(onCodeBtnPushed()) );
     QObject::connect(_drawQuote, SIGNAL(quoteClick(int)), this, SLOT(onQuoteClick(int)) );
     QObject::connect(_editCode, SIGNAL(returnPressed()), this, SLOT(onCodePressReturn()) );
-    QObject::connect(_chkAutoKP, SIGNAL(clicked()), this, SLOT(onAutoChkClicked()));
 
     //[3]代码框，价格，数量框，设置为粗体
     const QFont oldfont = this->font();
@@ -156,7 +156,6 @@ void    KBInputBox::configControls()
 {
     //[0]默认选择： 默认为非套保，默认为非自动开平，默认为非市价，
     _chkHedge->setChecked(false);
-    _chkAutoKP->setChecked(false);
     _chkAny->setChecked(false);
 
     //[1]默认值
@@ -566,18 +565,31 @@ void KBInputBox::onAutoChkClicked()
         qDebug() << "is Checked " << m_isAutoOpenClose;
         _btnBuyOpen->setText("多");
         _btnBuyClose->setDisabled(true);
+        _btnBuyClose->setText(tr(""));
         _btnSellOpen->setText("空");
         _btnSellClose->setDisabled(true);
+        _btnSellClose->setText(tr(""));
     }
     else
     {
         m_isAutoOpenClose = false;
         qDebug() << "is Checked " << m_isAutoOpenClose;
-        _btnBuyOpen->setText("买(开)");
+        _btnBuyOpen->setText(tr("买(开)"));
         _btnBuyClose->setDisabled(false);
-        _btnSellOpen->setText("卖(开)");
+        _btnBuyClose->setText(tr("买平"));
+        _btnSellOpen->setText(tr("卖(开)"));
         _btnSellClose->setDisabled(false);
+        _btnSellClose->setText(tr("卖平"));
     }
+}
+
+void KBInputBox::onCondChkClicked()
+{
+
+}
+
+void KBInputBox::onParkedChkClicked()
+{
 }
 
 void KBInputBox::closeEvent(QCloseEvent *event)

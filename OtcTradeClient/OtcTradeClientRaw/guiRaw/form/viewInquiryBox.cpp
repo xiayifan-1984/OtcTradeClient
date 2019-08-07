@@ -435,7 +435,6 @@ void    ViewInquiryBox::setWidgetData()
     {
         _tblWidget->setRowHeight(i,25);
     }*/
-
     m_otcPositions = GetOtcOptionModule()->getAllOtcPositions();
     if(m_otcPositions.size()<=0)
     {

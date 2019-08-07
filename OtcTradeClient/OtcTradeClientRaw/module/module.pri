@@ -15,7 +15,8 @@ HEADERS += \
     $$PWD/kafkamsghandler.h \
     $$PWD/iInternalSenderReceiver.h \
     $$PWD/otcoptionmodule.h \
-    $$PWD/otcoptionmoduleimpl.h
+    $$PWD/otcoptionmoduleimpl.h \
+    $$PWD/parkordermgr.h
 
 SOURCES += \
     $$PWD/configmodule.cpp \
@@ -30,6 +31,7 @@ SOURCES += \
     $$PWD/eventcentermodule.cpp \
     $$PWD/internalmessaging.cpp \
     $$PWD/otcoptionmoduleimpl.cpp \
-    $$PWD/otcoptionmodule.cpp
+    $$PWD/otcoptionmodule.cpp \
+    $$PWD/parkordermgr.cpp
 
     

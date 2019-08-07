@@ -57,6 +57,9 @@
 #include <utility>
 #include <thread>
 #include "otcriskcalc.h"
+#include "parkedordertab.h"
+#include "parkcondorderinput.h"
+#include "dataparkcondorder.h"
 
 extern shared_ptr<KBInputBox> tradeBox;
 extern InternalSenderReceiver* GetInternalMsgSenderReceiver();
@@ -145,9 +148,10 @@ void MainWindow::createActions()
         new3->setStatusTip(tr("Show a new Inquiry window"));
 
         QAction* new4 = tradeMenu->addAction(tr("OtcRiskCalculation"), this, &MainWindow::showRiskCalculationBox);
-        new3->setStatusTip(tr("Show a new Inquiry window"));
-      //  QAction* new4 = tradeMenu->addAction(tr("ParkOrderBox"), this, &MainWindow::showParkOrderBox);
-      //  new4->setStatusTip(tr("Show a new ParkOrderBox window"));
+        new4->setStatusTip(tr("Show a new Inquiry window"));
+
+        QAction* new5 = tradeMenu->addAction(tr("CustomizedOrderBox"), this, &MainWindow::showParkedCondOrderBox);
+        new5->setStatusTip(tr("show park and cond input box"));
         //@@@@@@@@@@@@@
     }
 
@@ -167,6 +171,9 @@ void MainWindow::createActions()
 
         QAction* newmdi5 = dataMenu->addAction(tr("PositionRecord"), this, &MainWindow::showDataPositionRecord);
         newmdi5->setStatusTip(tr("Show a new Position window"));
+
+        QAction* newmdi6 = dataMenu->addAction(tr("ParkAndConditionOrderTab"), this, &MainWindow::showParkCondOrderTab);
+        newmdi6->setStatusTip(tr("Show a new Parked and conditon order window"));
     }
 
     QMenu* debugMenu = menuBar()->addMenu(tr("Debug"));
@@ -293,9 +300,23 @@ void    MainWindow::showInquiry()
     mdiArea->activeSubWindow()->resize(1600,200);
 }
 
-void MainWindow::showParkOrderBox()
+void MainWindow::showParkedCondOrderBox()
 {
-    //reserved for parked order
+    ParkCondOrderInput* child = new ParkCondOrderInput();
+    QMdiSubWindow* sub = mdiArea->addSubWindow(child);
+    child->setWindowTitle(tr("ParkAndConditionBox"));
+    child->show();
+    mdiArea->activeSubWindow()->resize(480,320);
+}
+
+void MainWindow::showParkCondOrderTab()
+{
+    auto child = new DataParkCondOrder();
+    QMdiSubWindow* sub = mdiArea->addSubWindow(child);
+
+    child->setWindowTitle(tr("park and condition"));
+    child->show();
+    mdiArea->activeSubWindow()->resize(1200,200);
 }
 
 void MainWindow::showRiskCalculationBox()

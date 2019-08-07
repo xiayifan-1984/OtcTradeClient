@@ -6,6 +6,7 @@
 #include "otcoptionmodule.h"
 #include "decodeinnermsg.h"
 #include <algorithm>
+#include "parkordermgr.h"
 
 InternalSenderReceiver* g_internalSenderReceiver = nullptr;
 InternalSenderReceiver* GetInternalMsgSenderReceiver()
@@ -21,17 +22,29 @@ InternalSenderReceiver* GetInternalMsgSenderReceiver()
 int internalMsgHandler(const char* topic, int partition, long long offset, int buflen, const char* buf)
 {
     qDebug() << "topic " << topic << ", partition " << partition;
-    otcOptPositionRsp rsp;
-    if(Decodeinnermsg::decodeOtcOptPositionRsp(buf, buflen, rsp))
+    if(strcmp(topic, "411") == 0)
     {
-        qDebug() << "resId " << rsp.resID.c_str();
-        qDebug() << "reqId " << rsp.reqID;
+        otcOptPositionRsp rsp;
+        if(Decodeinnermsg::decodeOtcOptPositionRsp(buf, buflen, rsp))
+        {
+            qDebug() << "resId " << rsp.resID.c_str();
+            qDebug() << "reqId " << rsp.reqID;
+        }
+        auto pOtcInfo = GetOtcOptionModule();
+        std::for_each(rsp.positions.begin(), rsp.positions.end(), [pOtcInfo](otcOptPosition& pos)
+        {
+            pOtcInfo->addOtcPosition(pos);
+        });
+        return 1;
     }
-    auto pOtcInfo = GetOtcOptionModule();
-    std::for_each(rsp.positions.begin(), rsp.positions.end(), [pOtcInfo](otcOptPosition& pos)
+    if(strcmp(topic, "421") == 0)
     {
-        pOtcInfo->addOtcPosition(pos);
-    });
+        auto pPark = GetParkedOrderMgr();
+        if(pPark)
+        {
+            pPark->handleBuf(buf, buflen);
+        }
+    }
     return 1;
 }
 

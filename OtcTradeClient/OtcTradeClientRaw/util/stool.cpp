@@ -5,6 +5,7 @@
 #include <string>
 #include <algorithm>
 #include "stool.h"
+#include "configmodule.h"
 
 std::string stool::uniqueGroupId(const char* userId)
 {
@@ -26,4 +27,25 @@ std::string stool::uniqueUserId(int broker, int type, char *user)
     result += std::to_string(broker);
     result += std::to_string(type);
     return result;
+}
+
+std::string stool::genParkUserId(int broker, char *user)
+{
+
+    if(!user) return  "";
+    char key[255]{0};
+    sprintf(key, "%d_%s", broker, user);
+    std::string result(key);
+    return key;
+}
+
+string stool::loginName()
+{
+    auto pConf = GetConfigModule();
+    if(pConf)
+    {
+        std::string result(pConf->g.CurUser);
+        return result;
+    }
+    return "";
 }

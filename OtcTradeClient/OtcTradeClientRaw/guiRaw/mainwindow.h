@@ -76,6 +76,7 @@ private slots:
     void            showDataOrderRecord();
     void            showDataTradeRecord();
     void            showDataPositionRecord();
+    void            showParkCondOrderTab();
 
     //[system]
     void            ShowMDIContainer();
@@ -87,7 +88,7 @@ private slots:
     void            showRiskAvoid();
     void            showSimpleOrderBox();
     void            showInquiry();
-    void            showParkOrderBox();
+    void            showParkedCondOrderBox();
     void            showRiskCalculationBox();
 
     //[debug]
