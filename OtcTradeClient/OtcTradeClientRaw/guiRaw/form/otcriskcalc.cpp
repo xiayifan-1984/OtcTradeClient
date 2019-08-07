@@ -191,6 +191,7 @@ void OtcRiskCalc::initRow004()
     {
         pItem = new QTableWidgetItem();
         pItem->setTextColor(QColor(236,41,103));
+        pItem->setBackgroundColor(QColor(255,204,153));
         QString str;
         str.sprintf("%.1lf", arrData[i]);
         pItem->setText(str);
@@ -210,7 +211,8 @@ void OtcRiskCalc::initRow005()
     pItem->setText("超缺避");
     pItem->setTextAlignment(Qt::AlignCenter);
     pItem->setTextColor(QColor(236,41,103));
-    pItem->setBackgroundColor(QColor(255,204,153));
+    //pItem->setBackgroundColor(QColor(255,204,153));
+    pItem->setBackgroundColor(QColor(102,255,255));
     _tblWidget->setItem(4, 0, pItem);
 
     for(int i=0; i<9; i++)
@@ -224,6 +226,7 @@ void OtcRiskCalc::initRow005()
         {
             pItem->setTextColor(QColor(0,0,0));
         }
+        pItem->setBackgroundColor(QColor(102,255,255));
         QString str;
         str.sprintf("%.1lf", arrData[i]);
         pItem->setText(str);
@@ -377,6 +380,8 @@ void OtcRiskCalc::updateRiskComb(double price, int row, int col)
     std::string inst(XTCodec::AfUtf8_ToString(ts));
     qDebug()<<ts;
     inst = stool::strToUpper(inst);
+    auto loginName = stool::loginName();
+    //auto otcOpts = GetOtcOptionModule()->getOptPostionsByInstAndUser(inst, loginName);
     auto otcOpts = GetOtcOptionModule()->getOptPostionsByInst(inst);
     auto totolAvoidAmout = [&](double price)
     {

@@ -6,7 +6,9 @@ namespace stool
 {
     std::string uniqueGroupId(const char* userId);
     std::string strToUpper(std::string str);
+    std::string strToLower(std::string str);
     std::string uniqueUserId(int broker, int type, char* user);
+    std::string loginName();
 }
 
 #endif // STOOL_H

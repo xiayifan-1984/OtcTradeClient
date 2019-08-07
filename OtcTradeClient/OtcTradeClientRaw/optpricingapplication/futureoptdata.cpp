@@ -57,7 +57,7 @@ double FutureOptData:: calcCurElapseTime(QDate endDate)
         auto search = m_holidays.find(d);
         return search == m_holidays.end() && d.dayOfWeek() != 6 && d.dayOfWeek() != 7;
     };
-    if(!isWorkingDay(endDate) || beginDate.daysTo(endDate)<=0)
+    if(!isWorkingDay(endDate) || beginDate.daysTo(endDate)<0)
     {
         return -1;
     }

@@ -23,7 +23,8 @@ typedef struct
     int         RunMode;                //RUNMODE_
     double      vol;                    //Volatility
     double      riskFreeRate;           // risk free rate , default 4.5%
-    char        ExeDir[255];            //EXE所在目录                   
+    char        ExeDir[255];            //EXE所在目录
+    char        kafkaServer[255];
 
     char        ShareDataDir[255];      //共享数据目录
     char        UserDir[255];           //当前用户目录

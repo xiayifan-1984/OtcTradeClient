@@ -224,12 +224,30 @@ void        QOrderMgrImpl::OnRspQryInvestorPosition(tagXTInvestorPositionField *
 {
     if (pIn)
     {
-            qDebug() << "ExCode = " << pIn->ExCode.Code << " today position " << pIn->TodayPosition << " all position " << pIn->Position << " reqId " << nRequestID ;
+            qDebug() << "ExCode = " << pIn->ExCode.Code << " today position " << pIn->TodayPosition << " all position " << pIn->Position << " reqId "
+                     << nRequestID << " Direction " << pIn->PosiDirection << " HedgeFlag " << pIn->HedgeFlag;
             VerifyExCode(pIn->ExCode);
 
             string strkey = inner_getkey(pIn->ExCode.ExchID, pIn->ExCode.Code, pIn->PosiDirection, pIn->HedgeFlag);
 
-            m_mapPosition.insert(make_pair(strkey, *pIn));
+            //m_mapPosition.insert(make_pair(strkey, *pIn));
+            //m_mapPosition[strkey] = *pIn;
+            auto search = m_mapPosition.find(strkey);
+            if(search != m_mapPosition.end())
+            {
+                m_mapPosition[strkey].CloseVolume += pIn->CloseVolume;
+                m_mapPosition[strkey].OpenVolume += pIn->OpenVolume;
+                m_mapPosition[strkey].Position += pIn->Position;
+                m_mapPosition[strkey].PositionCost += pIn->PositionCost;
+                m_mapPosition[strkey].PositionDate = pIn->PositionDate;
+                m_mapPosition[strkey].PositionProfit += pIn->PositionProfit;
+                m_mapPosition[strkey].TodayPosition += pIn->TodayPosition;
+                m_mapPosition[strkey].YdPosition += pIn->YdPosition;
+            }
+            else
+            {
+                m_mapPosition[strkey] = *pIn;
+            }
     }
 
         if (bIsLast)
@@ -245,6 +263,7 @@ void        QOrderMgrImpl::OnRspQryInvestorPosition(tagXTInvestorPositionField *
 
             m_bInitOk = true;
             SendNotify(100, (LPARAM)this);
+            qDebug() << "req position last is received " << m_szuser;
         }
 }
 

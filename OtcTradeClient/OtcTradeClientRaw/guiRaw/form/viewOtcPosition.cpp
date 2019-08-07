@@ -305,7 +305,7 @@ void ViewOtcPosition::fillRow(int rowno, const otcOptPosition& opt, double& avoi
         pExchange->GetOneNameTable(&_curExCode, &oNameCode);
         showDot = oNameCode.ShowDot;
         priceTick = oNameCode.PriceTick!=0.0 ? oNameCode.PriceTick:priceTick;
-        multi = oNameCode.VolumeMultiple;
+        multi = oNameCode.VolumeMultiple != 0 ? oNameCode.VolumeMultiple : multi;
         //priceTick = oNameCode.PriceTick;
     }
 
@@ -473,6 +473,7 @@ void ViewOtcPosition::fillRow(int rowno, const otcOptPosition& opt, double& avoi
     pItem->setText(QString::number(optProfit + futureProfit, 'f',2));
     pItem->setBackgroundColor(greenClr);
     pItem->setTextColor(blackClr);
+    _tblWidget->resizeColumnToContents(itemidx);
     _tblWidget->setItem(rowno, itemidx++, pItem);
 
     totalProfit += optProfit + futureProfit;
@@ -491,6 +492,7 @@ void    ViewOtcPosition::setWidgetData()
     std::string inst(XTCodec::AfUtf8_ToString(ts));
     qDebug()<<ts;
     inst = stool::strToUpper(inst);
+    auto loginName = stool::loginName();
     auto otcOpts = GetOtcOptionModule()->getOptPostionsByInst(inst);
     if(otcOpts.size()<=0)
     {

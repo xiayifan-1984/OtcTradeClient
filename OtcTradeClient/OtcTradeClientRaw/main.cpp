@@ -15,8 +15,24 @@
 #include "./util/codeinnermsg.h"
 #include "./util/XTCodec.h"
 #include "./util/stool.h"
+#include <string.h>
+#include "stool.h"
 
 //=========================================================================================================================================================================================================================================
+
+void requestOtcPostions()
+{
+    auto loginName = stool::loginName();
+    auto innerOtcInquiry = Codeinnermsg::otcOptInquiryReq("1", 1, loginName.c_str());
+    //Sleep(10000);
+    int msgCount = 0;
+    while(msgCount < 3)
+    {
+        Sleep(1000);
+        ++msgCount;
+        GetInternalMsgSenderReceiver()->sendMsg("410", const_cast<char*>(innerOtcInquiry.c_str()), innerOtcInquiry.size());
+    }
+}
 
 long ApplicationCrashHandler(EXCEPTION_POINTERS *pException){
 {
@@ -78,8 +94,9 @@ void    OnInitInstance()
     GetDataModule()->Init( GetConfigModule()->g.ShareDataDir );
 
     GetInternalMsgSenderReceiver()->instantiateSenderReceiver();
-    GetInternalMsgSenderReceiver()->initProducer("192.168.1.7:9092");
-    const char* brokers = "192.168.1.7:9092";
+    GetInternalMsgSenderReceiver()->initProducer(GetConfigModule()->g.kafkaServer);
+    char brokers[255]{0};
+    strncpy(brokers, GetConfigModule()->g.kafkaServer, strlen(GetConfigModule()->g.kafkaServer));
     char* topics[] =
     {
         "411"
@@ -90,15 +107,6 @@ void    OnInitInstance()
     GetInternalMsgSenderReceiver()->startConsume();
 
     // Login successful, check otc position info
-    auto innerOtcInquiry = Codeinnermsg::otcOptInquiryReq("1", 1, "12346");
-    //Sleep(10000);
-    int msgCount = 0;
-    while(msgCount < 3)
-    {
-        Sleep(1000);
-        ++msgCount;
-        GetInternalMsgSenderReceiver()->sendMsg("410", const_cast<char*>(innerOtcInquiry.c_str()), innerOtcInquiry.size());
-    }
  //   GetInternalMsgSenderReceiver()->sendMsg("410", const_cast<char*>(innerOtcInquiry.c_str()), innerOtcInquiry.size());
  //   GetInternalMsgSenderReceiver()->sendMsg("410", const_cast<char*>(innerOtcInquiry.c_str()), innerOtcInquiry.size());
 

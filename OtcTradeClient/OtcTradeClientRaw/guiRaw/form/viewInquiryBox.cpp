@@ -414,6 +414,7 @@ void ViewInquiryBox::fillRow(int rowno, const otcOptPosition &opt)
     pItem->setText(QString::number(marginToCall, 'f', 2));
     pItem->setBackgroundColor(greenClr);
     pItem->setTextColor(blackClr);
+    _tblWidget->resizeColumnToContents(itemidx);
     _tblWidget->setItem(rowno, itemidx++, pItem);
 }
 

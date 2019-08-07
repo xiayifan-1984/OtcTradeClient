@@ -20,6 +20,11 @@ std::vector<otcOptPosition> OtcOptionModule::getOptPostionsByInst(std::string &i
     return m_impl->getOptPostionsByInst(inst);
 }
 
+std::vector<otcOptPosition> OtcOptionModule::getOptPostionsByInstAndUser(std::string &inst, const std::string &user)
+{
+    return m_impl->getOptPostionsByInstAndUser(inst, user);
+}
+
 void OtcOptionModule::addOtcPosition(const otcOptPosition &pos)
 {
     m_impl->addOtcPosition(pos);
