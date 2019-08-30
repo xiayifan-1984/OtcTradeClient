@@ -56,11 +56,11 @@ public:
     char            orderref[16];
 };
 
-#define PARK_ORDER_NEW
-#define PARK_ORDER_ACCEPT
-#define PARK_ORDER_INSERT
-#define PARK_ORDER_CANCEL
-#define PARK_ORDER_FAIL
+#define PARK_ORDER_NEW      0
+#define PARK_ORDER_ACCEPT   1
+#define PARK_ORDER_INSERT   2
+#define PARK_ORDER_CANCEL   3
+#define PARK_ORDER_FAIL     4
 
 class ParkOrderEvent: public QEvent
 {

@@ -4,19 +4,24 @@
 #include <QtWidgets>
 #include "parkedordertab.h"
 #include "condordertab.h"
+#include "eventcentermodule.h"
 
+class OrderEventArgs;
 class DataParkCondOrder : public QWidget
 {
     Q_OBJECT
 public:
     explicit DataParkCondOrder(QObject* parent = nullptr);
     ~DataParkCondOrder();
-/*
+
+    void updateParkOrderInfo(int orderType);
 private slots:
-    void onParkOrderMessage();
-*/
+    void onClickedTableView(const QModelIndex&);
+    void onOrderEvent(ParkOrderEvent* pEvent);
+
 private:
     void    initControls();
+    std::string getCurParkUser();
     QComboBox* _userSel;
     QTabWidget*   _tabViews;
 

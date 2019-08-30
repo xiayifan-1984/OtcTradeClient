@@ -3,6 +3,8 @@
 
 #include <QtWidgets>
 #include "XTBase.h"
+#include "codeinnermsg.h"
+#include <map>
 
 typedef enum
 {
@@ -31,6 +33,7 @@ enum class OPEN_CLOSE
     NONE,
     OPEN,
     CLOSE,
+    CLOSE_TODAY,
     AUTO
 };
 
@@ -58,8 +61,15 @@ private:
 public:
     void setCurCommodity(const tagXTInstrument& oCode, void* oKBDetail);
     void setInitPrice(double price);
+    void setInsertPrcie(double price);
     void reset();
     void setBsAndOffset(BUY_SELL bs, OPEN_CLOSE oc);
+    void setAction(OPEN_CLOSE oc);
+
+    XTContingentConditionType getContigentType();
+    double  getStopPrice();
+    char    getDirection();
+    char    getOffset();
 
 private slots:
     void onSelectPriceType();
@@ -74,12 +84,16 @@ private:
     QComboBox*  _compType;
     QDoubleSpinBox* _condPrice;
 
+    std::map<CompTypes, std::map<PriceTypes, XTContingentConditionType>>   m_triggerTab;
+    void    initTriggerTab();
+
     QLabel* _orderInfo;
 
     tagXTCommodity m_code;
     PriceTypes m_pType;
     CompTypes m_pComp;
     double m_condPrice;
+    double m_insertPrice;
 
     BUY_SELL m_bsDirection;
     OPEN_CLOSE m_ocAction;

@@ -40,8 +40,9 @@ private slots:
     void            onAutoChkClicked();
     void            onCondChkClicked();
     void            onParkedChkClicked();
-    void            onCondBtnClick();
     void            onCloseTodayClick();
+    void            onClickCondInsert();
+    void            onPriceChanged(double);
 
 protected:
     tagXTInstrument     m_oExCode;
@@ -102,6 +103,7 @@ private:
     void                 closePostion(char, int, int);
     CondOrderBox*        m_condParams;
     int                 insertParkOrder(char  direction, char  offsetflag, int volume);
+    int                 insertCondOrder(char  direction, char  offsetflag, int volume);
 };
 
 #endif // PARKCONDORDERINPUT_H

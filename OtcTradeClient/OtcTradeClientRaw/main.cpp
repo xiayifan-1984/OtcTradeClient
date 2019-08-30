@@ -17,8 +17,10 @@
 #include "./util/stool.h"
 #include <string.h>
 #include "stool.h"
+#include "parkordermgr.h"
+#include "codeinnermsg.h"
 
-void requestOtcPostions()
+void requestInnerServerInfo()
 {
     auto loginName = stool::loginName();
     auto innerOtcInquiry = Codeinnermsg::otcOptInquiryReq("1", 1, loginName.c_str());
@@ -30,6 +32,17 @@ void requestOtcPostions()
         ++msgCount;
         GetInternalMsgSenderReceiver()->sendMsg("410", const_cast<char*>(innerOtcInquiry.c_str()), innerOtcInquiry.size());
     }
+
+  /*  auto parkMgr = GetParkedOrderMgr();
+    if(!parkMgr) return;
+    auto parkUsers = parkMgr->getAllUsers();
+    for(auto& user:parkUsers)
+    {
+        tagXTQryParkedOrderField qry;
+        memset(&qry, 0, sizeof(tagXTQryParkedOrderField));
+        qry.ParkedType = XT_CC_ParkedOrder;
+        user->reqQryParkedOrder(&qry);
+    }*/
 }
 
 //=========================================================================================================================================================================================================================================
@@ -98,13 +111,14 @@ void    OnInitInstance()
     char brokers[255]{0};
     strncpy(brokers, GetConfigModule()->g.kafkaServer, strlen(GetConfigModule()->g.kafkaServer));
 
-    char* topics[] =
+    char *topics[2]
     {
         "411",
-        "421"
+        "421",
     };
+
     auto groupid = stool::uniqueGroupId("kafka");
-    GetInternalMsgSenderReceiver()->initConsumer(brokers, groupid.c_str(), internalMsgHandler,2,topics);
+    GetInternalMsgSenderReceiver()->initConsumer(brokers, groupid.c_str(), internalMsgHandler,2, topics);
 
     GetInternalMsgSenderReceiver()->startConsume();
 

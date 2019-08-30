@@ -1,6 +1,7 @@
 #ifndef STOOL_H
 #define STOOL_H
 #include <string>
+#include <QString>
 
 namespace stool
 {
@@ -10,6 +11,8 @@ namespace stool
     std::string uniqueUserId(int broker, int type, char* user);
     std::string genParkUserId(int broker, char* user);
     std::string loginName();
+    QString     openClose2Text(char* ocflag);
+    QString     buySell2Text(char bsflag);
 }
 
 #endif // STOOL_H

@@ -16,6 +16,17 @@ OrderEventArgs::OrderEventArgs(int type)
     memset(reason, 0, sizeof(reason));
 }
 
+ParkOrderEvent::ParkOrderEvent(int type):QEvent(Type(type))
+{
+    usertype = 0;
+    broker = 0;
+    memset(user, 0, sizeof(user));
+
+    subevent =0;
+    indexId = 0;
+    memset(reason, 0, sizeof(reason));
+}
+
 TransactionEventArgs::TransactionEventArgs(int  type)
     :QEvent( Type(type) )
 {
@@ -85,6 +96,11 @@ void     QEventCenter::PostTransactMessage(TransactionEventArgs* pargs)
     qApp->postEvent(this, pargs);
 }
 
+void QEventCenter::PostParkOrderMessage(ParkOrderEvent *event)
+{
+    qApp->postEvent(this, event);
+}
+
 void     QEventCenter::PostSysNotifyMessage(SysNotifyEventArgs* pargs)
 {
     qApp->postEvent(this, pargs);
@@ -110,6 +126,12 @@ void     QEventCenter::customEvent(QEvent *event)
 
         emit fireParkOrderEvent(e);
     }
+    else if(event->type() == static_cast<QEvent::Type>(CET_ConditionOrder))
+    {
+        ParkOrderEvent* e = static_cast<ParkOrderEvent*>(event);
+
+        emit fireParkOrderEvent(e);
+    }
     else if(event->type() == static_cast<QEvent::Type>(CET_SysNotify) )
     {
         SysNotifyEventArgs* e = static_cast<SysNotifyEventArgs*>(event);
@@ -117,5 +139,7 @@ void     QEventCenter::customEvent(QEvent *event)
         emit fireSysNotifyEvent(e);
     }
 }
+
+
 
 

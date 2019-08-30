@@ -158,6 +158,7 @@ void            ParkCondOrderInput::initControls()
     QObject::connect(_chkCondOrder, SIGNAL(clicked()), this, SLOT(onCondChkClicked()));
     QObject::connect(_chkParkedOrder, SIGNAL(clicked()), this, SLOT(onParkedChkClicked()));
     QObject::connect(_chCloseTodayOrYes, SIGNAL(clicked()), this, SLOT(onCloseTodayClick()));
+    QObject::connect(_spinPrice, SIGNAL(valueChanged(double)), this, SLOT(onPriceChanged(double)));
 
     //[3]代码框，价格，数量框，设置为粗体
     const QFont oldfont = this->font();
@@ -176,6 +177,8 @@ void            ParkCondOrderInput::initControls()
     QObject::connect(_btnBuyClose, SIGNAL(clicked()), this,  SLOT(on_buyclosebtn_clicked()) );
     QObject::connect(_btnSellOpen, SIGNAL(clicked()), this,  SLOT(on_sellopenbtn_clicked_or_autoshort()) );
     QObject::connect(_btnSellClose, SIGNAL(clicked()), this,  SLOT(on_sellclosebtn_clicked()) );
+
+    QObject::connect(_btnCondInsert, SIGNAL(clicked()), this,  SLOT(onClickCondInsert()) );
 
     QObject::connect(GetEventCenter(), SIGNAL(fireOrderEvent(OrderEventArgs*)), this, SLOT(onOrderEvent(OrderEventArgs*)) );
 
@@ -243,15 +246,6 @@ void    ParkCondOrderInput::onQuoteClick(int idx)
     double dprice =0.0;
     _drawQuote->getClickPrice(idx, dprice);
 
-    if(_chkCondOrder->isChecked())
-    {
-        if(m_condParams)
-        {
-            m_condParams->setInitPrice(dprice);
-            return;
-        }
-    }
-
     //如果未赋值初始行情
     if(!m_oKBDetail.dyn_valid)
     {
@@ -282,6 +276,15 @@ void    ParkCondOrderInput::onQuoteClick(int idx)
     if(dprice < m_oKBDetail.lowerlimitprice)
     {
         dprice = m_oKBDetail.defaultprice;
+    }
+
+    if(_chkCondOrder->isChecked())
+    {
+        if(m_condParams)
+        {
+            m_condParams->setInitPrice(dprice);
+            return;
+        }
     }
 
     _spinPrice->setValue(dprice);
@@ -469,7 +472,7 @@ void   ParkCondOrderInput::on_buyopenbtn_clicked_or_autolong()    //买入开仓
         insertParkOrder(XT_D_Buy, offset, _spinVol->value());
         return;
     }
-    int iret = inputOrderCommon(XT_D_Buy, XT_OF_Open, _spinVol->value());
+    int iret = inputOrderCommon(XT_D_Buy, _chkAutoKP->isChecked()? XT_OF_Auto : XT_OF_Open, _spinVol->value());
     if(iret >0)
     {
         return;
@@ -493,7 +496,14 @@ void   ParkCondOrderInput::on_buyclosebtn_clicked()   //买入平仓
 {
     if(_chkCondOrder->isChecked())
     {
-        m_condParams->setBsAndOffset(BUY_SELL::BUY, OPEN_CLOSE::CLOSE);
+        m_condParams->setBsAndOffset(BUY_SELL::BUY, _chCloseTodayOrYes->isChecked()? OPEN_CLOSE::CLOSE_TODAY : OPEN_CLOSE::CLOSE);
+        return;
+    }
+    if(_chkParkedOrder->isChecked())
+    {
+        qDebug() << "is auto kp = " << _chkAutoKP->isChecked();
+        auto offset = _chCloseTodayOrYes->isChecked() ? XT_OF_CloseToday : XT_OF_Close;
+        insertParkOrder(XT_D_Buy, offset, _spinVol->value());
         return;
     }
     qDebug()<<"buy close is clicked";
@@ -510,8 +520,15 @@ void   ParkCondOrderInput::on_sellopenbtn_clicked_or_autoshort()   //卖出开�
         m_condParams->setBsAndOffset(BUY_SELL::SELL, _chkAutoKP->isChecked()?OPEN_CLOSE::AUTO : OPEN_CLOSE::OPEN);
         return;
     }
+    if(_chkParkedOrder->isChecked())
+    {
+        qDebug() << "is auto kp = " << _chkAutoKP->isChecked();
+        auto offset = _chkAutoKP->isChecked() ? XT_OF_Auto : XT_OF_Open;
+        insertParkOrder(XT_D_Sell, offset, _spinVol->value());
+        return;
+    }
     qDebug()<<"sell open is clicked";
-    int iret = inputOrderCommon(XT_D_Sell, XT_OF_Open, _spinVol->value());
+    int iret = inputOrderCommon(XT_D_Sell, _chkAutoKP->isChecked()? XT_OF_Auto : XT_OF_Open, _spinVol->value());
     if(iret >0)
     {
         return;
@@ -522,7 +539,14 @@ void   ParkCondOrderInput::on_sellclosebtn_clicked()  //卖出平仓
 {
     if(_chkCondOrder->isChecked())
     {
-        m_condParams->setBsAndOffset(BUY_SELL::SELL, OPEN_CLOSE::CLOSE);
+        m_condParams->setBsAndOffset(BUY_SELL::SELL, _chCloseTodayOrYes->isChecked()? OPEN_CLOSE::CLOSE_TODAY : OPEN_CLOSE::CLOSE);
+        return;
+    }
+    if(_chkParkedOrder->isChecked())
+    {
+        qDebug() << "is auto kp = " << _chkAutoKP->isChecked();
+        auto offset = _chCloseTodayOrYes->isChecked() ? XT_OF_CloseToday : XT_OF_Close;
+        insertParkOrder(XT_D_Sell, offset, _spinVol->value());
         return;
     }
     qDebug()<<"sell close is clicked";
@@ -685,6 +709,7 @@ void ParkCondOrderInput::onCondChkClicked()
         if(m_condParams != nullptr)
         {
             m_condParams->setCurCommodity(m_oExCode, (void*)&m_oKBDetail);
+            m_condParams->setInsertPrcie(_spinPrice->value());
         }
     }
     else
@@ -710,10 +735,6 @@ void ParkCondOrderInput::onParkedChkClicked()
     }
 }
 
-void ParkCondOrderInput::onCondBtnClick()
-{
-
-}
 
 void ParkCondOrderInput::onCloseTodayClick()
 {
@@ -729,6 +750,43 @@ void ParkCondOrderInput::onCloseTodayClick()
 
         _btnBuyClose->setVisible(true);
         _btnSellClose->setVisible(true);
+
+        if(m_condParams)
+        {
+            m_condParams->setAction(OPEN_CLOSE::CLOSE_TODAY);
+        }
+    }
+    else
+    {
+        if(m_condParams)
+        {
+            m_condParams->setAction(OPEN_CLOSE::NONE);
+        }
+    }
+}
+
+void ParkCondOrderInput::onClickCondInsert()
+{
+    if(_chkCondOrder->isChecked())
+    {
+        if(m_condParams)
+        {
+            auto dir = m_condParams->getDirection();
+            auto offset = m_condParams->getOffset();
+            if(dir != '\0' && offset != XT_OF_Invalid_Offset)
+            {
+                insertCondOrder(dir, offset, _spinVol->value());
+            }
+        }
+    }
+}
+
+void ParkCondOrderInput::onPriceChanged(double p)
+{
+    auto price = _spinPrice->value();
+    if(m_condParams && _chkCondOrder->isChecked())
+    {
+        m_condParams->setInsertPrcie(price);
     }
 }
 
@@ -869,6 +927,120 @@ int ParkCondOrderInput::insertParkOrder(char direction, char offsetflag, int vol
         oField.ParkedType = XT_CC_ParkedOrder;
         oField.ParkedStatus = XT_PAOS_NotSend;
         oField.StopPrice = dprice;
+
+        char szOrderRef[13]{0};
+        int sNo = qrand()%1000;
+        GetConfigModule()->GetOrderRef(szOrderRef, (char*)(QString::number(sNo).data()));
+        strncpy(oField.ParkedOrderID, szOrderRef, 12);
+    }
+    //_curMgr->InsertOrder(&oField);
+    auto pPark = GetParkedOrderMgr();
+    if(pPark)
+    {
+        auto strkey = stool::genParkUserId(broker, userid);
+        auto pUser = pPark->findMgrByUser(strkey);
+        if(pUser)
+        {
+            pUser->reqParkedOrderInsert(&oField);
+        }
+    }
+    return 1;
+}
+
+int ParkCondOrderInput::insertCondOrder(char direction, char offsetflag, int volume)
+{
+    //[1]检查代码
+    if(m_oExCode.ExchID ==0)
+    {
+        return (-1);
+    }
+  /*  if(!m_oKBDetail.dyn_valid)
+    {
+        return (-2);
+    }*/
+
+    //[2]检查账号
+    if(_cboxAccount->count() <=0)
+    {
+        return (-3);
+    }
+
+    //[3]数量检查
+    int nval = volume;
+    if(nval <=0)
+    {
+        return (-4);
+    }
+
+    //[4]价格检查(市价限价)
+    const double dprice = _spinPrice->value();
+    if(!_chkAny->isChecked())
+    {
+        if(dprice < m_oKBDetail.lowerlimitprice || dprice > m_oKBDetail.upperlimitprice)
+        {
+            return (-5);
+        }
+    }
+
+    QVariant v = _cboxAccount->currentData();
+    auto _curMgr = (QOrderMgr *)v.value<void *>();
+    if(nullptr == _curMgr)
+    {
+        return (-6);
+    }
+
+    int type;
+    int broker;
+    char  userid[32]{0};
+    _curMgr->WhoIs(type, broker, userid);
+
+   // tagXTInputOrderField oField;
+    tagXTParkedOrderField oField;
+    memset(&oField, 0, sizeof(oField));
+    {
+        int usertype=0;
+        int broker =0;
+        char szuser[32]={0};
+
+        _curMgr->WhoIs(usertype, broker, szuser);
+        oField.BrokerID = broker;
+        strcpy(oField.UserID, szuser);
+        oField.ExCode = m_oExCode;
+        oField.Volume = nval;
+
+        if(_chkAny->isChecked() )
+        {
+            oField.PriceType = XT_OPT_AnyPrice;
+            oField.LimitPrice =0;
+        }
+        else
+        {
+            oField.PriceType = XT_OPT_LimitPrice;
+            oField.LimitPrice = dprice;
+        }
+
+        if(_chkHedge->isChecked())
+        {
+            oField.HedgeFlag[0] = XT_HF_Hedge;
+            oField.HedgeFlag[1] = XT_HF_Hedge;
+        }
+        else
+        {
+            oField.HedgeFlag[0] = XT_HF_Speculation;
+            oField.HedgeFlag[1] = XT_HF_Speculation;
+        }
+
+        oField.Direction = direction;
+        oField.OffsetFlag[0] = offsetflag;
+        oField.OffsetFlag[1] = offsetflag;
+
+        if(m_condParams)
+
+        {
+            oField.ParkedType = m_condParams->getContigentType();
+            oField.ParkedStatus = XT_PAOS_NotSend;
+            oField.StopPrice = m_condParams->getStopPrice();
+        }
 
         char szOrderRef[13]{0};
         int sNo = qrand()%1000;

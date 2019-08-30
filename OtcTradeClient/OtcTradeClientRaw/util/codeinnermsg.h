@@ -15,6 +15,24 @@
 ///已删除
 #define XT_PAOS_Deleted     '3'
 
+inline QString parkOrderStatusToStr(char s)
+{
+    QString ret;
+    if(s == '1')
+    {
+        ret = "未报";
+    }
+    if(s == '2')
+    {
+        ret = "已报";
+    }
+    if(s == '3')
+    {
+        ret = "已撤";
+    }
+    return ret;
+}
+
 /////////////////////////////////////////////////////////////////////////
 ///XTContingentConditionType是一个触发条件类型
 /////////////////////////////////////////////////////////////////////////
@@ -53,6 +71,28 @@
 
 typedef char XTContingentConditionType;
 
+inline QString condTriggerToStr(XTContingentConditionType trigger)
+{
+    QString ret = "未知";
+    if(trigger == XT_CC_LastPriceGreaterThanStopPrice || trigger == XT_CC_AskPriceGreaterThanStopPrice || trigger == XT_CC_BidPriceGreaterThanStopPrice)
+    {
+        ret = ">";
+    }
+    if(trigger == XT_CC_LastPriceGreaterEqualStopPrice || trigger == XT_CC_AskPriceGreaterEqualStopPrice || trigger == XT_CC_BidPriceGreaterEqualStopPrice)
+    {
+        ret = ">=";
+    }
+    if(trigger == XT_CC_LastPriceLesserThanStopPrice || trigger == XT_CC_AskPriceLesserThanStopPrice || trigger == XT_CC_BidPriceLesserThanStopPrice)
+    {
+        ret = "<";
+    }
+    if(trigger == XT_CC_LastPriceLesserEqualStopPrice || trigger == XT_CC_AskPriceLesserEqualStopPrice|| trigger ==XT_CC_BidPriceLesserEqualStopPrice)
+    {
+        ret = "<=";
+    }
+    return  ret;
+}
+
 #pragma pack(1)
 typedef struct
 {
@@ -77,7 +117,7 @@ struct tagXTParkedOrderField : public tagXTInputOrderField
     double      StopPrice;
 };
 
-typedef struct tagXTParkedOrderActionField
+typedef struct
 {
     char            ParkedType; //XTContingentConditionType
     char_13         ParkedOrderID;
@@ -86,9 +126,9 @@ typedef struct tagXTParkedOrderActionField
     int             BrokerID;
     char_16         UserID;
     tagXTInstrument     ExCode;
-};
+}tagXTParkedOrderActionField;
 
-typedef struct   tagXTQryParkedOrderField
+typedef struct
 {
     int             BrokerID;
     char_16         UserID;
@@ -96,7 +136,7 @@ typedef struct   tagXTQryParkedOrderField
     tagXTInstrument ExCode;
     char            ParkedType;
     char_13         ParkedOrderID;
-};
+}tagXTQryParkedOrderField;
 
 
 namespace Codeinnermsg

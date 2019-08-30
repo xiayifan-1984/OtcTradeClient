@@ -8,12 +8,14 @@
 #include "configmodule.h"
 #include <vector>
 
-class ParkOrderMgrByUser
+class ParkCondOrderMgrByUser
 {
 public:
-    ParkOrderMgrByUser(const tagOneTradeUser& user);
-    ~ParkOrderMgrByUser(){}
+    ParkCondOrderMgrByUser(const tagOneTradeUser& user);
+    ~ParkCondOrderMgrByUser(){}
 
+    void cancelParkOrder(std::string parkId);
+    void cancelCondOrder(std::string parkId);
     int reqParkedOrderInsert(tagXTParkedOrderField* inputOrder);
     int reqParkedOrderAction(tagXTParkedOrderActionField* inputAction);
     int reqQryParkedOrder(tagXTQryParkedOrderField* inputQry);
@@ -23,12 +25,15 @@ public:
 
     std::vector<tagXTParkedOrderField> getParkOrders();
     std::vector<tagXTParkedOrderField> getCondOrders();
+    std::unordered_map<std::string, QTime>& getParkTime();
 private:
     int sendRequest(unsigned char mainType, unsigned char childType, const char* inbuf, unsigned short  insize, int broker, const char* userId);
     tagOneTradeUser m_user;
     int m_reqCount;
     std::unordered_map<std::string, tagXTParkedOrderField> m_parkOrderInfo;
     std::unordered_map<std::string, tagXTParkedOrderField> m_condOrderInfo;
+
+    std::unordered_map<std::string, QTime> m_parkTime;
 };
 
 class ParkedOrderMgr
@@ -38,10 +43,11 @@ public:
     ~ParkedOrderMgr(){}
 
     int initUsers();
-    std::shared_ptr<ParkOrderMgrByUser> findMgrByUser(const string& strkey);
+    std::shared_ptr<ParkCondOrderMgrByUser> findMgrByUser(const string& strkey);
+    std::vector<std::shared_ptr<ParkCondOrderMgrByUser>> getAllUsers();
     bool handleBuf(const char* pbuf, int buflen);
 private:
-    std::unordered_map<std::string, std::shared_ptr<ParkOrderMgrByUser>> m_parkCondOrdersForUsers;
+    std::unordered_map<std::string, std::shared_ptr<ParkCondOrderMgrByUser>> m_parkCondOrdersForUsers;
 };
 
 extern std::shared_ptr<ParkedOrderMgr> GetParkedOrderMgr();

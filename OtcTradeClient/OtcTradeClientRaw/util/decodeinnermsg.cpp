@@ -45,120 +45,139 @@ bool Decodeinnermsg::decodeOtcOptPositionRsp(const char *buf, int len, otcOptPos
             while(p != jarr.end())
             {
                 otcOptPosition result;
-                memset(&result, 0, sizeof(result));
                 if(p->isObject())
                 {
                     const auto& subobj = p->toObject();
                     if(subobj.contains("status"))
                     {
                         auto val = subobj.value("status");
+                        if(val.isNull()) continue;
                         result.status = val.toInt();
                     }
                     if(subobj.contains("trade_no"))
                     {
                         auto val = subobj.value("trade_no");
+                        if(val.isNull()) continue;
                         result.trade_no = val.toString().toStdString();
                     }
                     if(subobj.contains("user_name"))
                     {
                         auto val = subobj.value("user_name");
+                        if(val.isNull()) continue;
                         result.user_name = val.toString().toStdString();
                     }
                     if(subobj.contains("user_no"))
                     {
                         auto val = subobj.value("user_no");
+                        if(val.isNull()) continue;
                         result.user_no = val.toString().toStdString();
                     }
                     if(subobj.contains("direction"))
                     {
                         auto val = subobj.value("direction");
+                        if(val.isNull()) continue;
                         auto num = val.toInt();
                         result.direction = num;
                     }
                     if(subobj.contains("volume"))
                     {
                         auto val = subobj.value("volume");
+                        if(val.isNull()) continue;
                         auto num = val.toDouble();
                         result.volume = num;
                     }
                     if(subobj.contains("under_product"))
                     {
                         auto val = subobj.value("under_product");
+                        if(val.isNull()) continue;
                         result.under_product = val.toString().toStdString();
                     }
                     if(subobj.contains("under_code"))
                     {
                         auto val = subobj.value("under_code");
+                        if(val.isNull()) continue;
                         result.under_code = val.toString().toStdString();
                     }
                     if(subobj.contains("trade_date"))
                     {
                         auto val = subobj.value("trade_date");
+                        if(val.isNull()) continue;
                         auto num = val.toInt();
                         result.trade_date = num;
                     }
                     if(subobj.contains("exec_type"))
                     {
                         auto val = subobj.value("exec_type");
+                        if(val.isNull()) continue;
                         auto num = val.toInt();
                         result.exec_type = num;
                     }
                     if(subobj.contains("option_struct"))
                     {
                         auto val = subobj.value("option_struct");
+                        if(val.isNull()) continue;
                         auto num = val.toInt();
                         result.option_struct = num;
                     }
                     if(subobj.contains("exec_date"))
                     {
                         auto val = subobj.value("exec_date");
+                        if(val.isNull()) continue;
                         auto num = val.toInt();
                         result.exec_date = num;
                     }
                     if(subobj.contains("exec_price"))
                     {
                         auto val = subobj.value("exec_price");
+                        if(val.isNull()) continue;
                         auto num = val.toDouble();
                         result.exec_price = num;
                     }
                     if(subobj.contains("callput"))
                     {
                         auto val = subobj.value("callput");
+                        if(val.isNull()) continue;
                         auto num = val.toInt();
                         result.callput = num;
                     }
                     if(subobj.contains("enddate"))
                     {
                         auto val = subobj.value("enddate");
+                        if(val.isNull()) continue;
                         auto num = val.toInt();
                         result.enddate = num;
                     }
                     if(subobj.contains("price"))
                     {
                         auto val = subobj.value("price");
+                        if(val.isNull()) continue;
                         auto num = val.toDouble();
                         result.price = num;
                     }
                     if(subobj.contains("under_price"))
                     {
                         auto val = subobj.value("under_price");
+                        if(val.isNull()) continue;
                         auto num = val.toDouble();
                         result.under_price = num;
                     }
                     if(subobj.contains("multi"))
                     {
                         auto val = subobj.value("multi");
+                        if(val.isNull()) continue;
                         auto num = val.toInt();
                         result.multi = num;
                     }
                     if(subobj.contains("trader"))
                     {
                         auto val = subobj.value("trader");
+                        if(val.isNull()) continue;
                         result.trader = val.toString().toStdString();
                     }
                     if(subobj.contains("under_sigma"))
                     {
                         auto val = subobj.value("under_sigma");
+                        if(val.isNull()) continue;
                         auto num = val.toDouble();
                         result.under_sigma = num;
                     }

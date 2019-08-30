@@ -33,6 +33,8 @@ typedef		char		XTDirectionType;
 
 
 ///XTOffsetFlagType是一个开平标志类型
+/// 自动开平
+#define		XT_OF_Auto                  '\0'
 ///开仓
 #define		XT_OF_Open                  '0'
 ///平仓
@@ -47,8 +49,8 @@ typedef		char		XTDirectionType;
 #define		XT_OF_ForceOff              '5'
 ///本地强平
 #define		XT_OF_LocalForceClose       '6'
-///自动开平
-#define         XT_OF_Auto                  '\0'
+///reserved
+#define         XT_OF_Invalid_Offset               'A'
 
 typedef		char		XTOffsetFlagType;
 
