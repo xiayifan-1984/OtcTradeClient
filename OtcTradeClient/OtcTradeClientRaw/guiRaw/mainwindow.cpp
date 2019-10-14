@@ -60,6 +60,9 @@
 #include "parkedordertab.h"
 #include "parkcondorderinput.h"
 #include "dataparkcondorder.h"
+#include "algoinputbox.h"
+#include "algoordertab.h"
+#include "dataalgoorder.h"
 
 extern shared_ptr<KBInputBox> tradeBox;
 extern InternalSenderReceiver* GetInternalMsgSenderReceiver();
@@ -152,6 +155,9 @@ void MainWindow::createActions()
 
         QAction* new5 = tradeMenu->addAction(tr("CustomizedOrderBox"), this, &MainWindow::showParkedCondOrderBox);
         new5->setStatusTip(tr("show park and cond input box"));
+
+        QAction* new6 = tradeMenu->addAction(tr("AlgoInputBox"), this, &MainWindow::showAlgoInputBox);
+        new5->setStatusTip(tr("show algo input box"));
         //@@@@@@@@@@@@@
     }
 
@@ -174,6 +180,9 @@ void MainWindow::createActions()
 
         QAction* newmdi6 = dataMenu->addAction(tr("ParkAndConditionOrderTab"), this, &MainWindow::showParkCondOrderTab);
         newmdi6->setStatusTip(tr("Show a new Parked and conditon order window"));
+
+        QAction* newmdi7 = dataMenu->addAction(tr("AlgoOrderTab"), this, &MainWindow::showAlgoOrderTab);
+        newmdi7->setStatusTip(tr("Show a new AlgoOrder window"));
     }
 
     QMenu* debugMenu = menuBar()->addMenu(tr("Debug"));
@@ -319,6 +328,14 @@ void MainWindow::showParkCondOrderTab()
     mdiArea->activeSubWindow()->resize(1200,200);
 }
 
+void MainWindow::showAlgoInputBox()
+{
+    auto child = new AlgoInputBox();
+    mdiArea->addSubWindow(child);
+    child->setWindowTitle(tr("AlgoInput"));
+    child->show();
+}
+
 void MainWindow::showRiskCalculationBox()
 {
     OtcRiskCalc* child = new OtcRiskCalc();
@@ -326,6 +343,14 @@ void MainWindow::showRiskCalculationBox()
     child->setWindowTitle(tr("OtcRiskCaculationTab"));
     child->show();
     mdiArea->activeSubWindow()->resize(800,200);
+}
+
+void MainWindow::showAlgoOrderTab()
+{
+    auto child = new DataAlgoOrder();
+    mdiArea->addSubWindow(child);
+    child->setWindowTitle(tr("AlgoOrderTab"));
+    child->show();
 }
 
 void      MainWindow::ShowMDIContainer()

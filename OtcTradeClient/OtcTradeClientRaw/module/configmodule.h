@@ -7,6 +7,7 @@
 #include <utility>
 #include <unordered_map>
 #include <set>
+#include <QTime>
 using namespace std;
 
 //================================================================================================================================================================================================================================================================================
@@ -61,7 +62,7 @@ typedef struct
 
 #pragma pack()
 
-
+typedef  unordered_map<string, vector<pair<QTime, QTime>>> TimeSections;
 //================================================================================================================================================================================================================================================================================
 class QConfigModule
 {
@@ -82,6 +83,7 @@ public:
     void                        GetOrderRef(char* pszOrderRef,  char* pszMarker);
     void                        insertRiskVol(tagXTInstrument& code, double vol);
     double                      getRiskVol(tagXTInstrument& code);
+    const TimeSections&         getMarketOpenedTimeSec();
 
 
 
@@ -102,7 +104,7 @@ protected:
     vector<tagOneTradeUser>     m_arrTradeUser;
     unordered_map<string, vector<string>> m_tradableProducts;
     vector<tagXTInstrument>     m_arrMainContract;
-    unordered_map<string, vector<pair<string, string>>> m_tradeTimeSection;
+    unordered_map<string, vector<pair<QTime, QTime>>> m_tradeTimeSection;
     unordered_map<string, double> m_instRiskVols;
 };
 

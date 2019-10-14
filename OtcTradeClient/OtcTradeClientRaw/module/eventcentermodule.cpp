@@ -39,6 +39,16 @@ TransactionEventArgs::TransactionEventArgs(int  type)
     memset(orderref, 0, sizeof(orderref));
 }
 
+AlgoOrderEvent::AlgoOrderEvent(int type)
+    :QEvent (Type(type))
+{
+    usertype = 0;       //账号信息，一个完整的账号信息包括:账号类型，经纪商号码，账号
+    broker = 0;
+    memset(user, 0, sizeof(user) );
+
+    subevent = 0;       //成交单事件
+}
+
 SysNotifyEventArgs::SysNotifyEventArgs(int type)
     :QEvent( Type(type) )
 {
@@ -101,6 +111,11 @@ void QEventCenter::PostParkOrderMessage(ParkOrderEvent *event)
     qApp->postEvent(this, event);
 }
 
+void QEventCenter::PostAlgoOrderMessage(AlgoOrderEvent *event)
+{
+    qApp->postEvent(this, event);
+}
+
 void     QEventCenter::PostSysNotifyMessage(SysNotifyEventArgs* pargs)
 {
     qApp->postEvent(this, pargs);
@@ -138,7 +153,14 @@ void     QEventCenter::customEvent(QEvent *event)
 
         emit fireSysNotifyEvent(e);
     }
+    else if(event->type() == static_cast<QEvent::Type>(CET_AlgoTwap))
+    {
+        AlgoOrderEvent* e = static_cast<AlgoOrderEvent*>(event);
+        emit fireAlgoTwapOrderEvent(e);
+    }
 }
+
+
 
 
 

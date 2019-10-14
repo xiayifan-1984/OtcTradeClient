@@ -5,6 +5,7 @@
 #include "XTCodec.h"
 #include "trademoduleimpl.h"
 #include "configmodule.h"
+#include "stool.h"
 
 QOrderMgrImpl::QOrderMgrImpl(HMODULE hDll, CXTTradeApi* pApi)
 {
@@ -232,7 +233,7 @@ void        QOrderMgrImpl::OnRspQryInvestorPosition(tagXTInvestorPositionField *
 
             //m_mapPosition.insert(make_pair(strkey, *pIn));
             //m_mapPosition[strkey] = *pIn;
-            auto search = m_mapPosition.find(strkey);
+        /*    auto search = m_mapPosition.find(strkey);
             if(search != m_mapPosition.end())
             {
                 m_mapPosition[strkey].CloseVolume += pIn->CloseVolume;
@@ -247,6 +248,32 @@ void        QOrderMgrImpl::OnRspQryInvestorPosition(tagXTInvestorPositionField *
             else
             {
                 m_mapPosition[strkey] = *pIn;
+            }*/
+
+            auto search_reqId = m_tmpPositions.find(nRequestID);
+            if(search_reqId == m_tmpPositions.end())
+            {
+                m_tmpPositions[nRequestID].insert({strkey, *pIn});
+            }
+            else
+            {
+                auto& tmpPositionForThisReqId = m_tmpPositions[nRequestID];
+                auto search = tmpPositionForThisReqId.find(strkey);
+                if(search == tmpPositionForThisReqId.end())
+                {
+                    tmpPositionForThisReqId[strkey] = *pIn;
+                }
+                else
+                {
+                    tmpPositionForThisReqId[strkey].CloseVolume += pIn->CloseVolume;
+                    tmpPositionForThisReqId[strkey].OpenVolume += pIn->OpenVolume;
+                    tmpPositionForThisReqId[strkey].Position += pIn->Position;
+                    tmpPositionForThisReqId[strkey].PositionCost += pIn->PositionCost;
+                    tmpPositionForThisReqId[strkey].PositionDate = pIn->PositionDate;
+                    tmpPositionForThisReqId[strkey].PositionProfit += pIn->PositionProfit;
+                    tmpPositionForThisReqId[strkey].TodayPosition += pIn->TodayPosition;
+                    tmpPositionForThisReqId[strkey].YdPosition += pIn->YdPosition;
+                }
             }
     }
 
@@ -261,6 +288,12 @@ void        QOrderMgrImpl::OnRspQryInvestorPosition(tagXTInvestorPositionField *
 
             inner_reArrange();
 
+            auto search_reqId = m_tmpPositions.find(nRequestID);
+            if(search_reqId != m_tmpPositions.end())
+            {
+                m_mapPosition = search_reqId->second;
+                m_tmpPositions.erase(search_reqId->first);
+            }
             m_bInitOk = true;
             SendNotify(100, (LPARAM)this);
             qDebug() << "req position last is received " << m_szuser;
@@ -283,6 +316,9 @@ void        QOrderMgrImpl::OnRspOrderInsert(tagXTInputOrderField *pInputOrder, t
         e->broker = m_nbroker;
         strcpy(e->user, m_szuser);
         pEventCenter->PostOrderMessage(e);
+
+        string ref(e->orderref);
+        m_errorOrderMsg[ref] = pRspInfo->ErrorMsg;
     }
 }
 
@@ -342,7 +378,8 @@ void        QOrderMgrImpl::OnRtnOrder(tagXTOrderField *pOrder)
         {
             //Compare
             qDebug() << "order updating , " << pOrder->OrderRef << " ,new status = " << newstatus << " , curStatus = "<<itb->second.OrderStatus;
-            if (newstatus != itb->second.OrderStatus || newtradevol != itb->second.VolumeTraded)
+            auto curStatus = itb->second.OrderStatus;
+            if (newstatus != curStatus || newtradevol != itb->second.VolumeTraded)
             {
                 //update
                 QEventCenter* pEventCenter = GetEventCenter();
@@ -697,6 +734,11 @@ void QOrderMgrImpl::GetPositionsForInstrument(tagXTInstrument& oExCode, std::vec
         }
         ++itb;
     }
+}
+
+const map<string, string>& QOrderMgrImpl::getErrorMsgsInfo() const
+{
+    return m_errorOrderMsg;
 }
 
 int		QOrderMgrImpl::GetTradingAccount(tagXTTradingAccountField* pIn)

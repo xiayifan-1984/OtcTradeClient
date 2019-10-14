@@ -34,7 +34,7 @@ public:
     int			GetTradingAccount(tagXTTradingAccountField* pIn);
     void        GetOrdersForInstrument(tagXTInstrument&, std::vector<tagXTOrderField>&);
     void        GetPositionsForInstrument(tagXTInstrument&, std::vector<tagXTInvestorPositionField>&);
-
+    const map<string, string>& getErrorMsgsInfo() const;
 //CXTTradeSpi
 public:
     void        OnFrontConnected();
@@ -82,6 +82,8 @@ protected:
     map<string,	tagXTOrderField>				m_mapBrachOrder;
     map<string, string>                         m_mapOrder;				//orderref  ===> brokerseq
     map<string, otcOptPosition>                 m_mapOtcOptPositions;
+    map<int, map<string, tagXTInvestorPositionField>> m_tmpPositions;
+    map<string, string>                         m_errorOrderMsg;
 };
 
 

@@ -93,6 +93,29 @@ inline QString condTriggerToStr(XTContingentConditionType trigger)
     return  ret;
 }
 
+/////////////////////////////////////////////////////////////////////////
+///XTAlgoOrderType是算法订单类型
+/////////////////////////////////////////////////////////////////////////
+
+#define XT_ALGO_TWAP '1'
+
+#define XT_ALGO_VWAP '2'
+
+#define XT_ALGO_INVALID '3'
+typedef char  XTAlgoOrderType;
+
+#define XT_ALGO_Accepted '1'
+
+#define XT_AlGO_Executing '2'
+
+#define XT_AlGO_End '3'
+
+#define XT_AlGO_Cancelled '4'
+
+typedef char XTAlgoOrderStatus;
+
+#define NUM_ORDER_REF 100
+
 #pragma pack(1)
 typedef struct
 {
@@ -107,8 +130,8 @@ typedef struct
     unsigned char		childType;				//子类型
     unsigned short		size;					//数据体的长度
 }tagComm_FrameHead, MAIN_FRAME_HEAD;
-#pragma pack()
 
+#pragma pack()
 struct tagXTParkedOrderField : public tagXTInputOrderField
 {
     char        ParkedType; //XTContingentConditionType
@@ -138,6 +161,52 @@ typedef struct
     char_13         ParkedOrderID;
 }tagXTQryParkedOrderField;
 
+#pragma pack(1)
+typedef struct
+{
+    char        AlgoOrderType;
+    char_13     AlgoOrderID;
+    char        AlgoOrderStatus;
+    qint64        StartTime;
+    qint64        EndTime;
+
+    int             BrokerID;
+    char_16         UserID;
+    tagXTInstrument     ExCode;
+
+    char            Direction;
+    char            Offset;
+    double          Volumn;
+}tagXTAlgoOrderField;
+
+struct tagXTQryAlgoOrderField:tagXTAlgoOrderField
+{
+    int             CurOrderNum;
+    char_13         CurOrderRef[NUM_ORDER_REF];
+};
+
+typedef struct
+{
+    char            AlgoOrderType;
+    char_13         AlgoOrderID;
+    char            ActionFlag;
+
+    int             BrokerID;
+    char_16         UserID;
+    tagXTInstrument     ExCode;
+}tagXTAlgoOrderActionField;
+
+typedef struct
+{
+    char            AlgoOrderType;
+    char_13         AlgoOrderID;
+    char_13         InsertOrderRef;
+
+    int             BrokerID;
+    char_16         UserID;
+    tagXTInstrument     ExCode;
+} tagXTAlgoOrderInsertRtnField;
+#pragma pack()
 
 namespace Codeinnermsg
 {

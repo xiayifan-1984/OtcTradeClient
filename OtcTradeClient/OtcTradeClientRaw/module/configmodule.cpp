@@ -6,6 +6,7 @@
 #include "XTCodec.h"
 #include <string.h>
 #include "./optpricingapplication/futureoptdata.h"
+#include <QTime>
 
 //=================================================================================================================================================================================================================================
 QConfigModule*      g_configModule = nullptr;
@@ -378,19 +379,11 @@ void QConfigModule::initTradeTimeSection()
         {
             if(j<subArray.size() && j+1 < subArray.size())
             {
-                m_tradeTimeSection[key][j/2].first = XTCodec::AfUtf8_ToString(subArray[j].toString());
-                m_tradeTimeSection[key][j/2].second = XTCodec::AfUtf8_ToString(subArray[j+1].toString());
+                m_tradeTimeSection[key][j/2].first = QTime::fromString(subArray[j].toString(), "HH:mm:ss");
+                m_tradeTimeSection[key][j/2].second = QTime::fromString(subArray[j+1].toString(), "HH:mm:ss");
             }
         }
     }
-  /*  for(auto p = m_tradeTimeSection.begin(); p!= m_tradeTimeSection.end();++p)
-    {
-        for(auto q = p->second.begin(); q!= p->second.end(); ++q)
-        {
-            std::cout << q->first;
-            std::cout << q->second;
-        }
-    }*/
 }
 
 void QConfigModule::initVolatilitys()
@@ -511,6 +504,11 @@ double QConfigModule::getRiskVol(tagXTInstrument &code)
         return m_instRiskVols[inst];
     }
     return 0.2;
+}
+
+const TimeSections &QConfigModule::getMarketOpenedTimeSec()
+{
+    return m_tradeTimeSection;
 }
 
 

@@ -163,7 +163,7 @@ void    KBInputBox::configControls()
 
     //[2]spinVol默认值
     _spinVol->setMinimum(1);
-    _spinVol->setMaximum(100);
+    _spinVol->setMaximum(1000);
     _spinVol->setSingleStep(1);
 
     //[3]spinPrice默认值

@@ -71,6 +71,9 @@ void            ParkCondOrderInput::initControls()
     {
         QHBoxLayout* h1 = new QHBoxLayout();
         _spinVol = new QSpinBox();
+        _spinVol->setMaximum(1000);
+        _spinVol->setMinimum(1);
+        _spinVol->setSingleStep(1);
         _lblVol = new QLabel(tr("(手)"));
         h1->addWidget(_spinVol, 4);
         h1->addWidget(_lblVol, 1);
@@ -680,6 +683,14 @@ void ParkCondOrderInput::onAutoChkClicked()
         _chCloseTodayOrYes->setChecked(false);
         _btnBuyClose->setVisible(false);
         _btnSellClose->setVisible(false);
+
+        if(_chkCondOrder->isChecked())
+        {
+           if(m_condParams)
+           {
+               m_condParams->setAction(OPEN_CLOSE::AUTO);
+           }
+        }
     }
     else
     {
@@ -695,6 +706,10 @@ void ParkCondOrderInput::onAutoChkClicked()
         _chCloseTodayOrYes->setDisabled(false);
         _btnBuyClose->setVisible(true);
         _btnSellClose->setVisible(true);
+        if(m_condParams)
+        {
+            m_condParams->setAction(OPEN_CLOSE::NONE);
+        }
     }
 }
 
@@ -710,7 +725,16 @@ void ParkCondOrderInput::onCondChkClicked()
         {
             m_condParams->setCurCommodity(m_oExCode, (void*)&m_oKBDetail);
             m_condParams->setInsertPrcie(_spinPrice->value());
+            if(_chkAutoKP->isChecked())
+            {
+                m_condParams->setAction(OPEN_CLOSE::AUTO);
+            }
+            if(_chCloseTodayOrYes->isChecked())
+            {
+                m_condParams->setAction(OPEN_CLOSE::CLOSE_TODAY);
+            }
         }
+        m_condParams->enableController();
     }
     else
     {
@@ -718,6 +742,7 @@ void ParkCondOrderInput::onCondChkClicked()
         _btnCondInsert->setDisabled(true);
         _btnCondInsert->setText(tr(""));
         m_condParams->reset();
+        m_condParams->disableController();
     }
 }
 
@@ -929,15 +954,14 @@ int ParkCondOrderInput::insertParkOrder(char direction, char offsetflag, int vol
         oField.StopPrice = dprice;
 
         char szOrderRef[13]{0};
-        int sNo = qrand()%1000;
-        GetConfigModule()->GetOrderRef(szOrderRef, (char*)(QString::number(sNo).data()));
+        GetConfigModule()->GetOrderRef(szOrderRef, "127");
         strncpy(oField.ParkedOrderID, szOrderRef, 12);
     }
     //_curMgr->InsertOrder(&oField);
     auto pPark = GetParkedOrderMgr();
     if(pPark)
     {
-        auto strkey = stool::genParkUserId(broker, userid);
+        auto strkey = stool::genUserId(broker, userid);
         auto pUser = pPark->findMgrByUser(strkey);
         if(pUser)
         {
@@ -1043,15 +1067,14 @@ int ParkCondOrderInput::insertCondOrder(char direction, char offsetflag, int vol
         }
 
         char szOrderRef[13]{0};
-        int sNo = qrand()%1000;
-        GetConfigModule()->GetOrderRef(szOrderRef, (char*)(QString::number(sNo).data()));
+        GetConfigModule()->GetOrderRef(szOrderRef, "137");
         strncpy(oField.ParkedOrderID, szOrderRef, 12);
     }
     //_curMgr->InsertOrder(&oField);
     auto pPark = GetParkedOrderMgr();
     if(pPark)
     {
-        auto strkey = stool::genParkUserId(broker, userid);
+        auto strkey = stool::genUserId(broker, userid);
         auto pUser = pPark->findMgrByUser(strkey);
         if(pUser)
         {

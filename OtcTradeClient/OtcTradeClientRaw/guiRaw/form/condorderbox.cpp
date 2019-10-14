@@ -134,7 +134,7 @@ void CondOrderBox::setCurCommodity(const tagXTInstrument &oCode, void* oKBDetail
 void CondOrderBox::setInitPrice(double price)
 {
     m_condPrice = price;
-    m_insertPrice = price;
+   // m_insertPrice = price;
     _condPrice->setValue(price);
 }
 
@@ -165,6 +165,29 @@ void CondOrderBox::setAction(OPEN_CLOSE oc)
 {
     m_ocAction = oc;
     genOrderInfo();
+}
+
+void CondOrderBox::enableController()
+{
+    _condPrice->setDisabled(false);
+    _compType->setDisabled(false);
+    _priceType->setDisabled(false);
+    if(m_pComp == GREATER || m_pComp == NOT_LESS)
+    {
+        m_bsDirection = BUY_SELL::BUY;
+    }
+    if(m_pComp == LESS || m_pComp == NOT_GREATER)
+    {
+        m_bsDirection = BUY_SELL::SELL;
+    }
+    genOrderInfo();
+}
+
+void CondOrderBox::disableController()
+{
+    _condPrice->setDisabled(true);
+    _compType->setDisabled(true);
+    _priceType->setDisabled(true);
 }
 
 XTContingentConditionType CondOrderBox::getContigentType()
@@ -226,6 +249,14 @@ void CondOrderBox::onSelectPriceType()
 void CondOrderBox::onSelectCompType()
 {
     m_pComp = (CompTypes)_compType->currentIndex();
+    if(m_pComp == GREATER || m_pComp == NOT_LESS)
+    {
+        m_bsDirection = BUY_SELL::BUY;
+    }
+    if(m_pComp == LESS || m_pComp == NOT_GREATER)
+    {
+        m_bsDirection = BUY_SELL::SELL;
+    }
     genOrderInfo();
 }
 

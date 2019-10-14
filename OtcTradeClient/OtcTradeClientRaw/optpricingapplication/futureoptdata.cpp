@@ -116,14 +116,14 @@ double FutureOptData::getTheta()
 
 double FutureOptData::calcAvoidRiskAmount(const otcOptPosition& opt) const
 {
-    double T = FutureOptData::calcCurElapseTime(QDate::fromString(QString::number(opt.exec_date), "yyyyMMdd"))/workdays_per_year;
+    double T = FutureOptData::calcCurElapseTime(QDate::fromString(QString::number(opt.enddate), "yyyyMMdd"))/workdays_per_year;
     double delta = futureoptpricing::future_delta(callput(opt.callput), tdirection(opt.direction), m_curPrice, opt.exec_price, T, m_riskFreeRate, m_riskVol);
     return delta*m_curPrice*opt.volume*opt.multi;
 }
 
 double FutureOptData::calcOneVolGamma(const otcOptPosition &opt) const
 {
-    double T = FutureOptData::calcCurElapseTime(QDate::fromString(QString::number(opt.exec_date), "yyyyMMdd"))/workdays_per_year;
+    double T = FutureOptData::calcCurElapseTime(QDate::fromString(QString::number(opt.enddate), "yyyyMMdd"))/workdays_per_year;
     double gamma = futureoptpricing::future_gamma('x', tdirection(opt.direction), m_curPrice, opt.exec_price, T, m_riskFreeRate, m_riskVol);
     double enterVol = opt.under_sigma;
     //double enterVol = 0.18;
@@ -132,21 +132,21 @@ double FutureOptData::calcOneVolGamma(const otcOptPosition &opt) const
 
 double FutureOptData::calcDelta(const otcOptPosition &opt) const
 {
-    double T = FutureOptData::calcCurElapseTime(QDate::fromString(QString::number(opt.exec_date), "yyyyMMdd"))/workdays_per_year;
+    double T = FutureOptData::calcCurElapseTime(QDate::fromString(QString::number(opt.enddate), "yyyyMMdd"))/workdays_per_year;
     double delta = futureoptpricing::future_delta(callput(opt.callput), tdirection(opt.direction), m_curPrice, opt.exec_price, T, m_riskFreeRate, m_riskVol);
     return delta;
 }
 
 double FutureOptData::calcBsPrice(const otcOptPosition &opt) const
 {
-    double T = FutureOptData::calcCurElapseTime(QDate::fromString(QString::number(opt.exec_date), "yyyyMMdd"))/workdays_per_year;
+    double T = FutureOptData::calcCurElapseTime(QDate::fromString(QString::number(opt.enddate), "yyyyMMdd"))/workdays_per_year;
     double price = futureoptpricing::future_otcprice(callput(opt.callput), tdirection(opt.direction), m_curPrice, opt.exec_price, T, m_riskFreeRate, m_riskVol);
     return price;
 }
 
 double FutureOptData::calcTheta(const otcOptPosition &opt) const
 {
-    double T = FutureOptData::calcCurElapseTime(QDate::fromString(QString::number(opt.exec_date), "yyyyMMdd"))/workdays_per_year;
+    double T = FutureOptData::calcCurElapseTime(QDate::fromString(QString::number(opt.enddate), "yyyyMMdd"))/workdays_per_year;
     double theta = futureoptpricing::future_theta(callput(opt.callput), tdirection(opt.direction), m_curPrice, opt.exec_price, T, m_riskFreeRate, m_riskVol);
     return  theta;
 }

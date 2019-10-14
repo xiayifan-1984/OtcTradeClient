@@ -77,6 +77,7 @@ private slots:
     void            showDataTradeRecord();
     void            showDataPositionRecord();
     void            showParkCondOrderTab();
+    void            showAlgoInputBox();
 
     //[system]
     void            ShowMDIContainer();
@@ -90,12 +91,15 @@ private slots:
     void            showInquiry();
     void            showParkedCondOrderBox();
     void            showRiskCalculationBox();
+    void            showAlgoOrderTab();
 
     //[debug]
     void            showSelectCommodity();
     void            showKBInputBox();
     void            showDebugQuote();
     void            showSelectMainContract();
+
+
 
 private:
     QMdiArea *      mdiArea;

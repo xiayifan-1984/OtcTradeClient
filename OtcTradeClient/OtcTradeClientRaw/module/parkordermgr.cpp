@@ -334,7 +334,7 @@ bool ParkedOrderMgr::handleBuf(const char *pbuf, int buflen)
             }
             else
             {
-                auto strkey = stool::genParkUserId(userInfo.broker, userInfo.userid);
+                auto strkey = stool::genUserId(userInfo.broker, userInfo.userid);
                 auto parkUser = findMgrByUser(strkey);
                 if(parkUser)
                 {
@@ -354,7 +354,7 @@ bool ParkedOrderMgr::handleBuf(const char *pbuf, int buflen)
             }
             else
             {
-                auto strkey = stool::genParkUserId(userInfo.broker, userInfo.userid);
+                auto strkey = stool::genUserId(userInfo.broker, userInfo.userid);
                 auto parkUser = findMgrByUser(strkey);
                 if(parkUser)
                 {

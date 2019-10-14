@@ -12,12 +12,13 @@ void CondOrderTab::setUserMgr(std::shared_ptr<ParkCondOrderMgrByUser> pUserMgr)
     //_parkedOrderModel->removeRows(0, _parkedOrderModel->rowCount());
     if(!pUserMgr) return;
     m_rowIdx2ParkId.clear();
+    _condOrderModel->removeRows(0, _condOrderModel->rowCount());
     auto condOrders = pUserMgr->getCondOrders();
     if(condOrders.size()<=0)return;
     const auto& parkTimes = pUserMgr->getParkTime();
     sort(condOrders.begin(), condOrders.end(), [](const tagXTParkedOrderField& p1, const tagXTParkedOrderField& p2)
     {
-        if(strcasecmp(p1.ExCode.Code, p2.ExCode.Code)<0)
+        if(strcmp(p1.ParkedOrderID, p2.ParkedOrderID)>0)
         {
             return true;
         }

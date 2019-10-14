@@ -69,6 +69,14 @@ void DataParkCondOrder::onClickedTableView(const QModelIndex &ind)
     {
         auto curRow = ind.row();
         auto parkId = _parkOrderView->findParkId(curRow);
+        QString strMsg;
+        strMsg.sprintf("是否对委托单<font color='red'>[%d]</font>进行撤单?", parkId.c_str());
+        QMessageBox::StandardButton rb = QMessageBox::warning(nullptr, "撤单提醒",strMsg, QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+        if(rb != QMessageBox::Yes)
+        {
+            return;
+        }
+
         auto strkey = getCurParkUser();
         if(parkId.size()>0 && strkey.size()>0)
         {
@@ -88,6 +96,14 @@ void DataParkCondOrder::onClickedTableView(const QModelIndex &ind)
     {
         auto curRow = ind.row();
         auto parkId = _condOrderView->findParkId(curRow);
+        QString strMsg;
+        strMsg.sprintf("是否对委托单<font color='red'>[%d]</font>进行撤单?", parkId.c_str());
+        QMessageBox::StandardButton rb = QMessageBox::warning(nullptr, "撤单提醒",strMsg, QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+        if(rb != QMessageBox::Yes)
+        {
+            return;
+        }
+
         auto strkey = getCurParkUser();
         if(parkId.size()>0 && strkey.size()>0)
         {
@@ -121,6 +137,33 @@ void DataParkCondOrder::onOrderEvent(ParkOrderEvent *pEvent)
                 return;
             }
         }
+    }
+}
+
+void DataParkCondOrder::on_combox_indexChange(int idx)
+{
+    vector<tagOneTradeUser> arrUser;
+    GetConfigModule()->GetAllTradeUser(arrUser);
+    char strkey[255]{0};
+
+    for(auto& user:arrUser)
+    {
+        QString alias(user.aliasuser);
+        if(alias == _userSel->currentText())
+        {
+            sprintf(strkey, "%d_%s", user.broker, user.user);
+            break;
+        }
+    }
+    string key(strkey);
+
+    auto parkUser = GetParkedOrderMgr();
+
+    if(parkUser)
+    {
+        auto user = parkUser->findMgrByUser(key);
+        _parkOrderView->setUserMgr(user);
+        _condOrderView->setUserMgr(user);
     }
 }
 
@@ -167,7 +210,7 @@ void DataParkCondOrder::initControls()
 
     QObject::connect(_parkOrderView, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(onClickedTableView(const QModelIndex&)));
     QObject::connect(_condOrderView, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(onClickedTableView(const QModelIndex&)));
-
+    QObject::connect(_userSel, SIGNAL(currentIndexChanged(int)), this, SLOT(on_combox_indexChange(int)));
     QVBoxLayout* v1 = new QVBoxLayout();
     v1->addLayout(h1, 1);
     v1->addWidget(_tabViews);

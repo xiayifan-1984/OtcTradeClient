@@ -21,7 +21,12 @@ HEADERS += \
     $$PWD/parkcondorderinput.h \
     $$PWD/parkedordertab.h \
     $$PWD/condordertab.h \
-    $$PWD/dataparkcondorder.h
+    $$PWD/dataparkcondorder.h \
+    $$PWD/algoinputbox.h \
+    $$PWD/algoordertab.h \
+    $$PWD/dataalgoorder.h \
+    $$PWD/dataordershow.h \
+    $$PWD/twapshowdetail.h
 
 SOURCES += \
     $$PWD/debugquote.cpp \
@@ -42,4 +47,9 @@ SOURCES += \
     $$PWD/parkcondorderinput.cpp \
     $$PWD/parkedordertab.cpp \
     $$PWD/condordertab.cpp \
-    $$PWD/dataparkcondorder.cpp
+    $$PWD/dataparkcondorder.cpp \
+    $$PWD/algoinputbox.cpp \
+    $$PWD/algoordertab.cpp \
+    $$PWD/dataalgoorder.cpp \
+    $$PWD/dataordershow.cpp \
+    $$PWD/twapshowdetail.cpp

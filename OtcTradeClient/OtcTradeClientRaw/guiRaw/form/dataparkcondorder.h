@@ -18,6 +18,7 @@ public:
 private slots:
     void onClickedTableView(const QModelIndex&);
     void onOrderEvent(ParkOrderEvent* pEvent);
+    void on_combox_indexChange(int);
 
 private:
     void    initControls();

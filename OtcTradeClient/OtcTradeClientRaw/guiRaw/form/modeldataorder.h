@@ -12,6 +12,7 @@ enum class ORDER_TO_SHOW
     ANY_ORDER,
     ACCEPTED_ORDER,
     PARK_ORDER,
+    ALGO_TWAP,
     INVID_ORDER
 };
 
@@ -25,6 +26,7 @@ public:
     void        release();
     void        setOrderMgr(QOrderMgr* p);
     void        setOrderToShow(ORDER_TO_SHOW toShow);
+    void        drawAlgoOrders(const std::string& algoRef, QOrderMgr* p);
     QOrderMgr*  getMgr(){return m_pMgr;}
 public:
     QColor      getColorByDirection(char Direction) const;

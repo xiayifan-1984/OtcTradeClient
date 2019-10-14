@@ -2,6 +2,9 @@
 #include "trademodule.h"
 #include "datamodule.h"
 #include "XTCodec.h"
+#include "algoordermgr.h"
+#include "stool.h"
+#include <algorithm>
 
 //extern ParkOrderBox* getParkOrderBox();
 static void transOrder(tagXTInputOrderField& inputOrder, tagXTOrderField& outputOrder)
@@ -73,6 +76,10 @@ void        ModelSingleOrder::setOrderMgr(QOrderMgr* p)
     {
     // reserve for parked order
     }
+    else if(m_showOrderType == ORDER_TO_SHOW::ALGO_TWAP)
+    {
+
+    }
     else
     {
         if(p)
@@ -108,6 +115,55 @@ void        ModelSingleOrder::setOrderMgr(QOrderMgr* p)
 void ModelSingleOrder::setOrderToShow(ORDER_TO_SHOW toShow)
 {
     m_showOrderType = toShow;
+}
+
+void ModelSingleOrder::drawAlgoOrders(const string &algoRef, QOrderMgr *p)
+{
+    beginResetModel();
+
+    release();
+
+    if(p)
+    {
+        auto pAlgoCtx = GetAlgoOrderMgr();
+        int usertype=0;
+        int broker =0;
+        char szuser[32]={0};
+
+        p->WhoIs(usertype, broker, szuser);
+        auto algoUser = stool::genUserId(broker, szuser);
+        auto user = pAlgoCtx->findOrderMgr(algoUser);
+        if(!user) return;
+
+        const auto& algoRef2Orders = user->getAlgoRef2OrderRefMap();
+        auto search = algoRef2Orders.find(algoRef);
+        if(search == algoRef2Orders.end()) return;
+
+        const auto& ordersRecord = search->second;
+
+        int ncount = p->GetAllOrder(nullptr, 0);
+        if (ncount > 0)
+        {
+            tagXTOrderField* pArr = new tagXTOrderField[ncount];
+            p->GetAllOrder(pArr, ncount);
+
+            for (int i = 0; i < ncount; i++)
+            {
+                //[001]加入
+                string orderRef = pArr[i].OrderRef;
+                auto search = find_if(ordersRecord.begin(), ordersRecord.end(), [&](auto& ref){
+                    return ref == orderRef;
+                });
+                if(search == ordersRecord.end()) continue;
+                m_arrOrderTable.push_back(pArr[i]);
+            }
+
+            //[004]排序
+            std::sort(m_arrOrderTable.begin(), m_arrOrderTable.end(), OrderLower);
+            delete[] pArr;
+        }
+    }
+    endResetModel();
 }
 
 int         ModelSingleOrder::rowCount(const QModelIndex &parent) const

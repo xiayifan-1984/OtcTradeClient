@@ -13,6 +13,7 @@ enum CustomEventType
     CET_Transact,
     CET_ParkOrder,
     CET_ConditionOrder,
+    CET_AlgoTwap,
     CET_SysNotify,
 };
 
@@ -76,6 +77,25 @@ public:
     char            reason[32];     //如果失败，失败的原因
 };
 
+#define AlGO_ORDER_ACCEPT 0
+#define AlGO_ORDER_INSERT 1
+#define AlGO_ORDER_CANCEL 2
+#define AlGO_ORDER_INVALID 4
+
+class AlgoOrderEvent: public QEvent
+{
+public:
+    explicit AlgoOrderEvent(int type);
+public:
+    int             usertype;       //账号信息，一个完整的账号信息包括:账号类型，经纪商号码，账号
+    int             broker;
+    char            user[32];
+
+    int             subevent;     //委托单事件
+    int             indexId;      //indicate id of park order
+    char            reason[32];     //如果失败，失败的原因
+};
+
 //系统通知
 class SysNotifyEventArgs: public QEvent
 {
@@ -108,12 +128,14 @@ signals:
     void                        fireOrderEvent(OrderEventArgs* parg);
     void                        fireTransactEvent(TransactionEventArgs* parg);
     void                        fireParkOrderEvent(ParkOrderEvent* event);
+    void                        fireAlgoTwapOrderEvent(AlgoOrderEvent* event);
     void                        fireSysNotifyEvent(SysNotifyEventArgs* parg);
 
 public:
     void                        PostOrderMessage(OrderEventArgs* pargs);
     void                        PostTransactMessage(TransactionEventArgs* pargs);
     void                        PostParkOrderMessage(ParkOrderEvent* event);
+    void                        PostAlgoOrderMessage(AlgoOrderEvent* event);
     void                        PostSysNotifyMessage(SysNotifyEventArgs* pargs);
 
 protected:

@@ -16,7 +16,8 @@ HEADERS += \
     $$PWD/iInternalSenderReceiver.h \
     $$PWD/otcoptionmodule.h \
     $$PWD/otcoptionmoduleimpl.h \
-    $$PWD/parkordermgr.h
+    $$PWD/parkordermgr.h \
+    $$PWD/algoordermgr.h
 
 SOURCES += \
     $$PWD/configmodule.cpp \
@@ -32,6 +33,7 @@ SOURCES += \
     $$PWD/internalmessaging.cpp \
     $$PWD/otcoptionmoduleimpl.cpp \
     $$PWD/otcoptionmodule.cpp \
-    $$PWD/parkordermgr.cpp
+    $$PWD/parkordermgr.cpp \
+    $$PWD/algoordermgr.cpp
 
     

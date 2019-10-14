@@ -13,6 +13,7 @@
 #include "../module/trademodule.h"
 
 #include "parkordermgr.h"
+#include "algoordermgr.h"
 
 #define     WM_TRADE_NOTIFY     (WM_USER+100)
 
@@ -200,6 +201,11 @@ void    LoginDialog::onTimer()
             if(pParkMgr)
             {
                 pParkMgr->initUsers();
+            }
+            auto pAlgoTrade = GetAlgoOrderMgr();
+            if(pAlgoTrade)
+            {
+                pAlgoTrade->initUsers();
             }
 
             //初始化交易模块

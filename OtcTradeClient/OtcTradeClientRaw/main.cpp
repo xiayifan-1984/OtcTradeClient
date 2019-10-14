@@ -111,14 +111,15 @@ void    OnInitInstance()
     char brokers[255]{0};
     strncpy(brokers, GetConfigModule()->g.kafkaServer, strlen(GetConfigModule()->g.kafkaServer));
 
-    char *topics[2]
+    char *topics[3]
     {
         "411",
         "421",
+        "431",
     };
 
     auto groupid = stool::uniqueGroupId("kafka");
-    GetInternalMsgSenderReceiver()->initConsumer(brokers, groupid.c_str(), internalMsgHandler,2, topics);
+    GetInternalMsgSenderReceiver()->initConsumer(brokers, groupid.c_str(), internalMsgHandler,3, topics);
 
     GetInternalMsgSenderReceiver()->startConsume();
 

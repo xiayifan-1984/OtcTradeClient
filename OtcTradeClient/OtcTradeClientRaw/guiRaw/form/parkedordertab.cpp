@@ -12,12 +12,13 @@ void ParkedOrderTab::setUserMgr(std::shared_ptr<ParkCondOrderMgrByUser> pUserMgr
 {
     //_parkedOrderModel->removeRows(0, _parkedOrderModel->rowCount());
     if(!pUserMgr) return;
-    m_rowIdx2ParkId.clear();
     auto parkOrders = pUserMgr->getParkOrders();
-    if(parkOrders.size()<=0)return;
+    _parkedOrderModel->clear();
+    setHeadersForParkedOrder();
+    m_rowIdx2ParkId.clear();
     sort(parkOrders.begin(), parkOrders.end(), [](const tagXTParkedOrderField& p1, const tagXTParkedOrderField& p2)
     {
-        if(strcasecmp(p1.ExCode.Code, p2.ExCode.Code)<0)
+        if(strcmp(p1.ParkedOrderID, p2.ParkedOrderID)>0)
         {
             return true;
         }
@@ -31,6 +32,7 @@ void ParkedOrderTab::setUserMgr(std::shared_ptr<ParkCondOrderMgrByUser> pUserMgr
         fillRow(rowIdx, row);
         ++rowIdx;
     }
+    this->repaint();
 }
 
 string ParkedOrderTab::findParkId(int rowIdx)
@@ -149,7 +151,7 @@ void ParkedOrderTab::fillRow(int row, tagXTParkedOrderField &parkOrder)
     /*
     pItem = new QStandardItem();
     QString str ="";
-    int ntime = parkOrder;
+    int ntime = parkOrder.;
     str.sprintf("%02d:%02d:%02d", ntime / 10000, (ntime % 10000) / 100, ntime % 100);
     pItem->setText("InsertTime");
     _parkedOrderModel->setItem(row, 7, pItem);*/

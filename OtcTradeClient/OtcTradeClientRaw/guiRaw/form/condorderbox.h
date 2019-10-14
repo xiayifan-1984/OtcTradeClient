@@ -65,6 +65,8 @@ public:
     void reset();
     void setBsAndOffset(BUY_SELL bs, OPEN_CLOSE oc);
     void setAction(OPEN_CLOSE oc);
+    void disableController();
+    void enableController();
 
     XTContingentConditionType getContigentType();
     double  getStopPrice();

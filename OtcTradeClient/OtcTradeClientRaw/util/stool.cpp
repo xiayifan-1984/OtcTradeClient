@@ -8,6 +8,10 @@
 #include "configmodule.h"
 #include <QString>
 #include "XTTradestruct.h"
+#include <QTime>
+#include "configmodule.h"
+#include "XTCodec.h"
+#include <utility>
 
 std::string stool::uniqueGroupId(const char* userId)
 {
@@ -31,7 +35,7 @@ std::string stool::uniqueUserId(int broker, int type, char *user)
     return result;
 }
 
-std::string stool::genParkUserId(int broker, char *user)
+std::string stool::genUserId(int broker, char *user)
 {
 
     if(!user) return  "";
@@ -92,4 +96,36 @@ QString stool::buySell2Text(char bsflag)
     else
         str = "其他";
     return str;
+}
+
+bool stool::isMarketAlive(const string& inst, const QTime &begin, const QTime &end)
+{
+    QTime b = begin;
+    QTime e = end;
+
+    auto pConf = GetConfigModule();
+    if(pConf)
+    {
+        auto& ts = pConf->getMarketOpenedTimeSec();
+        auto search = ts.find(inst);
+        if(search != ts.end())
+        {
+            auto search_begin = find_if(search->second.begin(), search->second.end(), [&](const pair<QTime, QTime>& t){
+                   return b >= t.first && b <= t.second;
+            });
+            auto search_end = find_if(search->second.begin(), search->second.end(), [&](const pair<QTime, QTime>& t){
+                    return e >= t.first && e <= t.second;
+             });
+            return (search_begin != search->second.end() && search_end != search->second.end()) ? true:false;
+        }
+        return false;
+    }
+    return false;
+}
+
+bool stool::isOrderStatusCauseUpdate(XTOrderStatusType curStatus, XTOrderStatusType newStatus)
+{
+    if(curStatus == newStatus) return false;
+    if(curStatus == XT_OST_Accepted || curStatus == XT_OST_Canceled) return false;
+    return true;
 }

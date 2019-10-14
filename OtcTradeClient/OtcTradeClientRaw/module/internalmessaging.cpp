@@ -7,6 +7,7 @@
 #include "decodeinnermsg.h"
 #include <algorithm>
 #include "parkordermgr.h"
+#include "algoordermgr.h"
 
 InternalSenderReceiver* g_internalSenderReceiver = nullptr;
 InternalSenderReceiver* GetInternalMsgSenderReceiver()
@@ -43,6 +44,14 @@ int internalMsgHandler(const char* topic, int partition, long long offset, int b
         if(pPark)
         {
             pPark->handleBuf(buf, buflen);
+        }
+    }
+    if(strcmp(topic, "431") == 0)
+    {
+        auto pAlgoTrade = GetAlgoOrderMgr();
+        if(pAlgoTrade)
+        {
+            pAlgoTrade->handleBuf(buf, buflen);
         }
     }
     return 1;

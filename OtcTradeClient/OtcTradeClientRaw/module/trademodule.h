@@ -5,6 +5,7 @@
 #include "XTTradestruct.h"
 #include <windows.h>
 #include <vector>
+#include <string>
 
 //=============================================================================================================================================================================================================================================================================================================
 class QOrderMgr
@@ -29,7 +30,7 @@ public:
     virtual		int			GetTradingAccount(tagXTTradingAccountField* pIn) =0;
     virtual     void        GetOrdersForInstrument(tagXTInstrument&, std::vector<tagXTOrderField>&) = 0;
     virtual     void        GetPositionsForInstrument(tagXTInstrument&, std::vector<tagXTInvestorPositionField>&) = 0;
-
+    virtual     const std::map<std::string, std::string>&  getErrorMsgsInfo() const = 0;
 public:
     virtual      void       WhoIs(int& type, int& broker,  char*  userid  ) =0;
 
