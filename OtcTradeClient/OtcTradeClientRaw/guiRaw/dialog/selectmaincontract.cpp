@@ -5,6 +5,7 @@
 #include "configmodule.h"
 
 SelectMainContract::SelectMainContract(QWidget* parent/* = nullptr*/)
+    :QDialog (parent)
 {
     setWindowTitle(tr("Select Main Contract"));
 
@@ -56,11 +57,10 @@ void        SelectMainContract::initControls()
 void     SelectMainContract::initListCode()
 {
     vector<tagXTInstrument> arrExCode;
-    //int ncount = GetConfigModule()->GetAllMainContract(arrExCode);
-    arrExCode = GetDataModule()->GetCodeList();
+    GetDataModule()->GetAllCodeList(arrExCode);
+
     auto ncount = arrExCode.size();
-    //int ncount = GetDataModule()->
-    for(int i=0; i<ncount; i++)
+    for(size_t i=0; i<ncount; i++)
     {
         tagXTInstrument oExCode = arrExCode[i];
         QExchange* _curExchange = GetDataModule()->GetExchange(oExCode.ExchID);

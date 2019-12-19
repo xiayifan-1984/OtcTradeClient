@@ -3,9 +3,8 @@
 #include <QtCore>
 #include <windows.h>
 #include "XTCodec.h"
-#include "XTCodec.h"
 #include <string.h>
-#include "./optpricingapplication/futureoptdata.h"
+#include "otcoptionmodule.h"
 #include <QTime>
 
 //=================================================================================================================================================================================================================================
@@ -28,9 +27,9 @@ QConfigModule::QConfigModule()
 
 int     QConfigModule::Init()
 {
-    memset(&s, 0, sizeof (tagSessionSetting));
-    memset(&g, 0, sizeof(tagGlobalSetting));
-    memset(&m, 0, sizeof(tagMemorySave));
+    memset(&s, 0, sizeof (tagTSystemParam));
+    memset(&g, 0, sizeof(tagTGlobalParam));
+    memset(&m, 0, sizeof(tagTDynamicMemory));
 
     QString st= qApp->applicationDirPath();
     std::string sts = st.toStdString();
@@ -49,7 +48,6 @@ int     QConfigModule::Init()
 
     //[4]
     initClient();
-    initMainContract();
     initTradeTimeSection();
     initVolatilitys();
 
@@ -64,7 +62,8 @@ void    QConfigModule::Free()
 void    QConfigModule::ReloadTradeUser()
 {
     m_arrTradeUser.clear();
-    memset(&s, 0, sizeof (tagSessionSetting));
+    memset(s.TradeLine, 0, sizeof(s.TradeLine));
+    memset(s.TradeUser, 0, sizeof(s.TradeUser));
 
     initTradeUser();
 }
@@ -92,7 +91,7 @@ void    QConfigModule::initTradeUser()
         char szkey[32]={0};
         _snprintf(szkey, 31, "user_%d", i);
 
-        tagOneTradeUser oinfo;
+        tagTTradeUserParam oinfo;
         memset(&oinfo, 0, sizeof(oinfo));
         oinfo.type = GetPrivateProfileIntA(szkey, "type", 0, s.TradeUser);
         oinfo.broker = GetPrivateProfileIntA(szkey, "broker", 0, s.TradeUser);
@@ -151,24 +150,24 @@ void    QConfigModule::initClient()
     if(rootObj.contains("volatility"))
     {
         QString str = rootObj.value("volatility").toString();
-        g.vol = str.toDouble();
-        qDebug() << "start vol = " << g.vol;
+        s.vol = str.toDouble();
+        qDebug() << "start vol = " << s.vol;
     }
 
     if(rootObj.contains("riskfreerate"))
     {
         QString str = rootObj.value("riskfreerate").toString();
-        g.riskFreeRate = str.toDouble();
-        qDebug() << "risk free rate = " << g.riskFreeRate;
+        s.riskFreeRate = str.toDouble();
+        qDebug() << "risk free rate = " << s.riskFreeRate;
     }
 
     if(rootObj.contains("kafka"))
     {
         QString str = rootObj.value("kafka").toString();
 
-        memset(g.kafkaServer, '\0', 254);
-        strncpy(g.kafkaServer, str.toLatin1().data(), str.size());
-        qDebug() << "kafka server = " << g.kafkaServer;
+        memset(s.kafkaServer, '\0', 254);
+        strncpy(s.kafkaServer, str.toLatin1().data(), str.size());
+        qDebug() << "kafka server = " << s.kafkaServer;
     }
 
     // read holidays
@@ -203,14 +202,14 @@ void    QConfigModule::initClient()
 
 }
 
-int     QConfigModule::GetAllTradeUser(vector<tagOneTradeUser>& arrUser)
+int     QConfigModule::GetAllTradeUser(vector<tagTTradeUserParam>& arrUser)
 {
     arrUser.assign(m_arrTradeUser.begin(), m_arrTradeUser.end() );
 
     return arrUser.size();
 }
 
-int     QConfigModule::GetTradeUserBy(const char* pProductID, vector<tagOneTradeUser>& arrUser)
+int     QConfigModule::GetTradeUserBy(const char* pProductID, vector<tagTTradeUserParam>& arrUser)
 {
     int productlen = strlen(pProductID);
 
@@ -220,6 +219,8 @@ int     QConfigModule::GetTradeUserBy(const char* pProductID, vector<tagOneTrade
         int nlen = strlen(m_arrTradeUser[i].tradelimit);
         if( nlen <= 0)
         {
+            //如果无配置内容，默认该账号可以交易全部商品 2019-11-6
+            arrUser.push_back(m_arrTradeUser[i]);
             continue;
         }
 
@@ -230,7 +231,6 @@ int     QConfigModule::GetTradeUserBy(const char* pProductID, vector<tagOneTrade
         {
             if(*p == ',' || j == nlen-1)
             {
-               // qDebug() << "product len " << productlen << " compared len " << p-begin;
                 if(productlen == (p - begin) )
                 {
                     if(_strnicmp(begin, pProductID, productlen) == 0)
@@ -249,100 +249,6 @@ int     QConfigModule::GetTradeUserBy(const char* pProductID, vector<tagOneTrade
     }
 
     return arrUser.size();
-}
-
-void    QConfigModule::initMainContract()
-{
-    //读取 sharedata/main_contract.json
-    char szfile[255]={0};
-    strcpy(szfile, g.ShareDataDir);
-    strcat(szfile, "main_contract.json");
-
-    QFile loadFile(szfile);
-    if(!loadFile.open(QIODevice::ReadOnly))
-    {
-        return;
-    }
-
-    QByteArray allData = loadFile.readAll();
-    loadFile.close();
-
-    QJsonParseError json_error;
-    QJsonDocument jsonDoc(QJsonDocument::fromJson(allData, &json_error));
-
-    if(json_error.error != QJsonParseError::NoError)
-    {
-        return;
-    }
-
-    QJsonObject rootObj = jsonDoc.object();
-
-    //按交易所读取
-    if(rootObj.contains("CZCE"))
-    {
-        QJsonObject subObj = rootObj.value("CZCE").toObject();
-        QStringList keys = subObj.keys();
-        for(int i = 0; i < keys.size(); i++)
-        {
-            tagXTInstrument  obj;
-            memset(&obj, 0, sizeof(obj));
-            obj.ExchID = XT_EXCH_CZCE;
-            std::string strcode = XTCodec::AfUtf8_ToString( keys.at(i) );
-            strcpy( obj.Code, strcode.c_str() );
-
-            m_arrMainContract.push_back(obj);
-        }
-
-    }
-    if(rootObj.contains("SHFE"))
-    {
-        QJsonObject subObj = rootObj.value("SHFE").toObject();
-        QStringList keys = subObj.keys();
-        for(int i = 0; i < keys.size(); i++)
-        {
-            tagXTInstrument  obj;
-            memset(&obj, 0, sizeof(obj));
-            obj.ExchID = XT_EXCH_SHFE;
-            std::string strcode = XTCodec::AfUtf8_ToString( keys.at(i) );
-            strcpy( obj.Code, strcode.c_str() );
-
-            m_arrMainContract.push_back(obj);
-        }
-
-    }
-    if(rootObj.contains("DCE"))
-    {
-        QJsonObject subObj = rootObj.value("DCE").toObject();
-        QStringList keys = subObj.keys();
-        for(int i = 0; i < keys.size(); i++)
-        {
-            tagXTInstrument  obj;
-            memset(&obj, 0, sizeof(obj));
-            obj.ExchID = XT_EXCH_DCE;
-            std::string strcode = XTCodec::AfUtf8_ToString( keys.at(i) );
-            strcpy( obj.Code, strcode.c_str() );
-
-            m_arrMainContract.push_back(obj);
-        }
-
-    }
-    if(rootObj.contains("INE"))
-    {
-        QJsonObject subObj = rootObj.value("INE").toObject();
-        QStringList keys = subObj.keys();
-        for(int i = 0; i < keys.size(); i++)
-        {
-            tagXTInstrument  obj;
-            memset(&obj, 0, sizeof(obj));
-            obj.ExchID = XT_EXCH_INE;
-            std::string strcode = XTCodec::AfUtf8_ToString( keys.at(i) );
-            strcpy( obj.Code, strcode.c_str() );
-
-            m_arrMainContract.push_back(obj);
-        }
-
-    }
-
 }
 
 void QConfigModule::initTradeTimeSection()
@@ -420,9 +326,9 @@ void QConfigModule::initVolatilitys()
             auto value = subObj.value(keys[0]).toDouble();
 
             std::string inst = XTCodec::AfUtf8_ToString(keys[0]);
-            //auto search = m_instRiskVols.find(inst);
-            m_instRiskVols[inst] = value;
-            qDebug() << "instrument name = " << keys[0] << " value = " << m_instRiskVols[inst];
+            
+            m_mapRiskVols[inst] = value;
+            qDebug() << "instrument name = " << keys[0] << " value = " << m_mapRiskVols[inst];
         }
     }
 }
@@ -441,7 +347,7 @@ void QConfigModule::storeVolatilitys()
     secFile.resize(0);
     QJsonArray contents;
     int i = 0;
-    for(auto p = m_instRiskVols.begin(); p != m_instRiskVols.end(); ++p)
+    for(auto p = m_mapRiskVols.begin(); p != m_mapRiskVols.end(); ++p)
     {
         QJsonObject ele;
         ele.insert(p->first.c_str(), p->second);
@@ -455,13 +361,6 @@ void QConfigModule::storeVolatilitys()
 
     secFile.write(json.toJson());
     secFile.close();
-}
-
-int       QConfigModule::GetAllMainContract(vector<tagXTInstrument>& arrExCode)
-{
-    arrExCode.assign(m_arrMainContract.begin(), m_arrMainContract.end() );
-
-    return arrExCode.size();
 }
 
 void     QConfigModule::GetOrderRef(char* pszOrderRef,  char* pszMarker)
@@ -480,33 +379,33 @@ void     QConfigModule::GetOrderRef(char* pszOrderRef,  char* pszMarker)
     memcpy(pszOrderRef+9, pszMarker, 3);
 }
 
-void QConfigModule::insertRiskVol(tagXTInstrument &code, double vol)
+void QConfigModule::InsertRiskVol(tagXTInstrument &ExCode, double vol)
 {
-    std::string inst(code.Code);
-    auto search = m_instRiskVols.find(inst);
-    if(search != m_instRiskVols.end())
+    std::string inst(ExCode.Code);
+    auto search = m_mapRiskVols.find(inst);
+    if(search != m_mapRiskVols.end())
     {
-        m_instRiskVols[inst] = vol;
+        m_mapRiskVols[inst] = vol;
     }
     else
     {
-        m_instRiskVols.insert({inst, vol});
+        m_mapRiskVols.insert({inst, vol});
     }
     storeVolatilitys();
 }
 
-double QConfigModule::getRiskVol(tagXTInstrument &code)
+double QConfigModule::GetRiskVol(tagXTInstrument &code)
 {
     std::string inst(code.Code);
-    auto search = m_instRiskVols.find(inst);
-    if(search != m_instRiskVols.end())
+    auto search = m_mapRiskVols.find(inst);
+    if(search != m_mapRiskVols.end())
     {
-        return m_instRiskVols[inst];
+        return m_mapRiskVols[inst];
     }
     return 0.2;
 }
 
-const TimeSections &QConfigModule::getMarketOpenedTimeSec()
+const TimeSections &QConfigModule::GetMarketOpenedTimeSec()
 {
     return m_tradeTimeSection;
 }

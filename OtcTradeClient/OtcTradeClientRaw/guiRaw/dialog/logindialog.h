@@ -1,21 +1,20 @@
 #ifndef LOGINDIALOG_H
 #define LOGINDIALOG_H
 
-#include <QDialog>
+#include <QtWidgets>
 #include <QLibrary>
 
-namespace Ui {
-class LoginDialog;
-}
 
-class Titlebar;
 class LoginDialog : public QDialog
 {
     Q_OBJECT
 
 public:
     explicit LoginDialog(QWidget *parent = nullptr);
-    ~LoginDialog();
+    virtual ~LoginDialog();
+
+public:
+    int                 GetViewMode();
 
 protected:
     void                initControl();
@@ -28,6 +27,8 @@ protected:
     bool                nativeEvent(const QByteArray &eventType, void *message, long *result);
     bool                winEvent(MSG *message, long *result);
 
+    void                paintEvent(QPaintEvent *event);
+
 protected:
     static      int     s_ReportStatus(void* fthis, int main, int child);
     void                onReportStatus(int main, int child);
@@ -37,22 +38,32 @@ private slots:
     void                onTimer();
 
 private:
+    void                helper_fixedsize();
+
+protected:
+    QLineEdit*          _edtUser;
+    QLineEdit*          _edtPwd;
+    QPushButton*        _btnLogin;
+    QLabel*             _lblStatus;
+
+    QRadioButton*       _rbtnSDI;
+    QRadioButton*       _rbtnMDI;
+    QButtonGroup*       _gbtnView;
+
+private:
     QTimer*             _timer;
     QLibrary            m_dll;
+    QPixmap             m_oBkImg;
 
-    int                 m_nExecOK;      //状态
-    int                 m_nallTrade;
-    int                 m_ncurTrade;
+    int                 m_nExecOK;          //状态
+    int                 m_nTradeCount;    //交易账号的个数
+    int                 m_nOkTradeNum;        //当前的已经OK的交易账号的个数
 
-    Ui::LoginDialog *   ui;
+private:
+    int                 m_nLastCheckID;
+
 };
 
-/*
- *
- *
- *
- *
- */
 
 
 #endif // LOGINDIALOG_H

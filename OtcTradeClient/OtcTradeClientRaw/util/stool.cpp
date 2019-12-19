@@ -98,6 +98,20 @@ QString stool::buySell2Text(char bsflag)
     return str;
 }
 
+QString   stool::hedge2Text(char hedgeFlag)
+{
+    QString str;
+    if(hedgeFlag == XT_HF_Speculation)
+        str = "投机";
+    else if(hedgeFlag == XT_HF_Hedge)
+        str = "套保";
+    else if(hedgeFlag == XT_HF_Arbitrage)
+        str = "套利";
+    else
+        str = "其他";
+    return str;
+}
+
 bool stool::isMarketAlive(const string& inst, const QTime &begin, const QTime &end)
 {
     QTime b = begin;
@@ -106,7 +120,7 @@ bool stool::isMarketAlive(const string& inst, const QTime &begin, const QTime &e
     auto pConf = GetConfigModule();
     if(pConf)
     {
-        auto& ts = pConf->getMarketOpenedTimeSec();
+        auto& ts = pConf->GetMarketOpenedTimeSec();
         auto search = ts.find(inst);
         if(search != ts.end())
         {

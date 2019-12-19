@@ -36,11 +36,12 @@ typedef struct
 
 	int 						InnerProductID;
 
-        int                                             LotSize;        //手比率(期货，期权都是1， 股票、ETF、国债等需要注意)
-        int                                             ShowDot;        //显示小数位数(根据priceTick推算出来的)
+    int                         LotSize;        //手比率(期货，期权都是1， 股票、ETF、国债等需要注意)
+    int                         ShowDot;        //显示小数位数(根据priceTick推算出来的)
 
 	char						_reserved[32];
 }tagXTNameTable;
+
 
 typedef struct 
 {

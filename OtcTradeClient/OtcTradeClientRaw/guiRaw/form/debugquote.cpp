@@ -11,7 +11,7 @@ using namespace std;
 class QuoteDataModel : public QAbstractTableModel
 {
 public:
-    QuoteDataModel(QObject *parent = nullptr)
+    QuoteDataModel(QObject *parent = nullptr):QAbstractTableModel(parent)
     {
         m_pCodeTable = nullptr;
         m_pSnapTable = nullptr;
@@ -95,11 +95,11 @@ public:
 
     }
 
-    int         rowCount(const QModelIndex &parent) const
+    int         rowCount(const QModelIndex &) const
     {
         return m_nDataSize;
     }
-    int         columnCount(const QModelIndex &parent) const
+    int         columnCount(const QModelIndex &) const
     {
         return 11;
     }
@@ -232,6 +232,8 @@ public:
             }
             return str;
         }
+
+        return QVariant();
     }
 
 private:

@@ -21,13 +21,13 @@ typedef		char		XTOrderPriceType;
 ///普通卖出
 #define		XT_D_Sell               '1'
 ///担保品买入
-#define		XT_D_BuyCollateral	'8'
+#define		XT_D_BuyCollateral		'8'
 ///担保品卖出
-#define		XT_D_SellCollateral	'9'
+#define		XT_D_SellCollateral		'9'
 ///融资买入
-#define		XT_D_BuyMargin             'A'
+#define		XT_D_BuyMargin           'A'
 ///融资卖出
-#define		XT_D_SellMargin             'B'
+#define		XT_D_SellMargin           'B'
 
 typedef		char		XTDirectionType;
 
@@ -50,7 +50,7 @@ typedef		char		XTDirectionType;
 ///本地强平
 #define		XT_OF_LocalForceClose       '6'
 ///reserved
-#define         XT_OF_Invalid_Offset               'A'
+#define         XT_OF_Invalid_Offset     'A'
 
 typedef		char		XTOffsetFlagType;
 
@@ -66,7 +66,7 @@ typedef		char		XTOffsetFlagType;
 ///备兑
 #define		XT_HF_Covered           '4'
 ///做市商
-#define		XT_HF_MarketMaker	'5'
+#define		XT_HF_MarketMaker		'5'
 
 typedef		char		XTHedgeFlagType;
 
@@ -103,7 +103,7 @@ typedef char			XTOrderStatusType;
 ///多头
 #define		XT_PD_Long			'2'
 ///空头
-#define		XT_PD_Short		'3'
+#define		XT_PD_Short			'3'
 ///备兑
 #define		XT_PD_Covered		'4'
 
@@ -113,13 +113,13 @@ typedef char			XTPosiDirectionType;
 ///组合持仓拆分为单一持仓,初始化不应包含该类型的持仓
 #define		XT_TT_SplitCombination          '#'
 ///普通成交
-#define		XT_TT_Common			'0'
+#define		XT_TT_Common					'0'
 ///期权执行
 #define		XT_TT_OptionsExecution          '1'
 ///OTC成交
-#define		XT_TT_OTC				'2'
+#define		XT_TT_OTC						'2'
 ///期转现衍生成交
-#define		XT_TT_EFPDerived		'3'
+#define		XT_TT_EFPDerived				'3'
 ///组合衍生成交
 #define		XT_TT_CombinationDerived        '4'
 
@@ -340,23 +340,23 @@ typedef struct
 	///投机套保标：投机、套利、套保、备对
 	char						HedgeFlag;			//XTHedgeFlagType
 	///持仓日期
-	int 						PositionDate;
+        int 						PositionDate;       //持仓日期类型( '1' = 今日持仓  '2' = 历史持仓)
 	///上日持仓：上日结算持仓当前数量（昨结 - 昨平）
 	int							YdPosition;
 	///今日总持仓（包括冻结）：今日总持仓，包括可使用的持仓和冻结的持仓
 	int							Position;
 
 	///今日持仓
-	int                                 TodayPosition;
+	int                         TodayPosition;
 	///持仓成本
-	double                              PositionCost;
+	double                      PositionCost;
 	///持仓盈亏
-	double                              PositionProfit;
+	double                      PositionProfit;
 
-        ///开仓量
-        int				OpenVolume;				//统计的今日开仓量
-        ///平仓量
-        int				CloseVolume;                            //统计的今日平仓量
+    ///开仓量
+    int							OpenVolume;				//统计的今日开仓量
+    ///平仓量
+    int							CloseVolume;                            //统计的今日平仓量
 
 
 	/*

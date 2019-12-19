@@ -22,14 +22,10 @@ public:
 
     virtual		int			InsertOrder(tagXTInputOrderField* pIn) = 0;
     virtual		int			CancelOrder(tagXTInputOrderActionField* pIn) = 0;
-    //virtual		int			ManualReqAccount() = 0;
+    virtual     int         ReqQryAccount() = 0;
 
 public:
-    virtual		int			GetOneOrder(const char* pszOrderRef, tagXTOrderField& oOut) =0;
-    virtual		int			GetOnePosition(tagXTInstrument& oExCode,char LongShort, char  HedgeFlag, tagXTInvestorPositionField& oOut) =0;
     virtual		int			GetTradingAccount(tagXTTradingAccountField* pIn) =0;
-    virtual     void        GetOrdersForInstrument(tagXTInstrument&, std::vector<tagXTOrderField>&) = 0;
-    virtual     void        GetPositionsForInstrument(tagXTInstrument&, std::vector<tagXTInvestorPositionField>&) = 0;
     virtual     const std::map<std::string, std::string>&  getErrorMsgsInfo() const = 0;
 public:
     virtual      void       WhoIs(int& type, int& broker,  char*  userid  ) =0;

@@ -67,6 +67,7 @@ typedef struct
 
 }tagXTSnapshot;
 
+
 /*
 typedef struct
 {

@@ -8,24 +8,20 @@ HEADERS += \
     $$PWD/datanametable.h \
     $$PWD/datastaticdata.h \
     $$PWD/dataorder.h \
-    $$PWD/datatrade.h \
-    $$PWD/dataposition.h \
-    $$PWD/viewRiskAvoid.h \
-    $$PWD/viewInquiryBox.h \
-    $$PWD/viewOtcPosition.h \
+    $$PWD/mditradedata.h \
+    $$PWD/mdipositiondata.h \
+    $$PWD/otcRiskAvoid.h \
+    $$PWD/otcInquiryBox.h \
+    $$PWD/otcpositiondata.h \
     $$PWD/modeldataorder.h \
     $$PWD/modeldatatrade.h \
     $$PWD/modeldataposition.h \
+    $$PWD/modeldatatwap.h  \
     $$PWD/otcriskcalc.h \
-    $$PWD/condorderbox.h \
-    $$PWD/parkcondorderinput.h \
-    $$PWD/parkedordertab.h \
-    $$PWD/condordertab.h \
-    $$PWD/dataparkcondorder.h \
-    $$PWD/algoinputbox.h \
-    $$PWD/algoordertab.h \
-    $$PWD/dataalgoorder.h \
     $$PWD/dataordershow.h \
+    $$PWD/parkorderdata.h \
+    $$PWD/twapinputbox.h \
+    $$PWD/twaporderdata.h \
     $$PWD/twapshowdetail.h
 
 SOURCES += \
@@ -34,22 +30,19 @@ SOURCES += \
     $$PWD/datanametable.cpp \
     $$PWD/datastaticdata.cpp \
     $$PWD/dataorder.cpp \
-    $$PWD/datatrade.cpp \
-    $$PWD/dataposition.cpp \
-    $$PWD/viewRiskAvoid.cpp \
-    $$PWD/viewInquiryBox.cpp \
-    $$PWD/viewOtcPosition.cpp \
+    $$PWD/mditradedata.cpp \
+    $$PWD/mdipositiondata.cpp \
+    $$PWD/otcRiskAvoid.cpp \
+    $$PWD/otcInquiryBox.cpp \
+    $$PWD/otcpositiondata.cpp \
     $$PWD/modeldataorder.cpp \
     $$PWD/modeldatatrade.cpp \
     $$PWD/modeldataposition.cpp \
+    $$PWD/modeldatatwap.cpp  \
     $$PWD/otcriskcalc.cpp \
-    $$PWD/condorderbox.cpp \
-    $$PWD/parkcondorderinput.cpp \
-    $$PWD/parkedordertab.cpp \
-    $$PWD/condordertab.cpp \
-    $$PWD/dataparkcondorder.cpp \
-    $$PWD/algoinputbox.cpp \
-    $$PWD/algoordertab.cpp \
-    $$PWD/dataalgoorder.cpp \
     $$PWD/dataordershow.cpp \
+    $$PWD/parkorderdata.cpp \
+    $$PWD/twapinputbox.cpp \
+    $$PWD/twaporderdata.cpp \
     $$PWD/twapshowdetail.cpp
+

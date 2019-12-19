@@ -1,5 +1,5 @@
-﻿#include <windows.h>
-#include <dbghelp.h>
+
+#include <windows.h>
 
 #include <QtCore>
 #include <QApplication>
@@ -11,7 +11,7 @@
 #include "./module/datamodule.h"
 #include "./module/quotemodule.h"
 #include "./module/trademodule.h"
-#include "./module/internalmessaging.h"
+#include "./module/kafkamsgunit.h"
 #include "./util/codeinnermsg.h"
 #include "./util/XTCodec.h"
 #include "./util/stool.h"
@@ -20,111 +20,64 @@
 #include "parkordermgr.h"
 #include "codeinnermsg.h"
 
-void requestInnerServerInfo()
-{
-    auto loginName = stool::loginName();
-    auto innerOtcInquiry = Codeinnermsg::otcOptInquiryReq("1", 1, loginName.c_str());
-    //Sleep(10000);
-    int msgCount = 0;
-    while(msgCount < 3)
-    {
-        Sleep(1000);
-        ++msgCount;
-        GetInternalMsgSenderReceiver()->sendMsg("410", const_cast<char*>(innerOtcInquiry.c_str()), innerOtcInquiry.size());
-    }
-
-  /*  auto parkMgr = GetParkedOrderMgr();
-    if(!parkMgr) return;
-    auto parkUsers = parkMgr->getAllUsers();
-    for(auto& user:parkUsers)
-    {
-        tagXTQryParkedOrderField qry;
-        memset(&qry, 0, sizeof(tagXTQryParkedOrderField));
-        qry.ParkedType = XT_CC_ParkedOrder;
-        user->reqQryParkedOrder(&qry);
-    }*/
-}
+#include "sdiwindow.h"
 
 //=========================================================================================================================================================================================================================================
-
-long ApplicationCrashHandler(EXCEPTION_POINTERS *pException){
-{
-    // 在程序exe的上级目录中创建dmp文件夹
-    QDir *dmp = new QDir;
-    bool exist = dmp->exists("../dmp/");
-    if(exist == false)
-        dmp->mkdir("../dmp/");
-    }
-
-    QDateTime current_date_time = QDateTime::currentDateTime();
-    QString current_date = current_date_time.toString("yyyy_MM_dd_hh_mm_ss");
-    QString time =  current_date + ".dmp";
-
-    EXCEPTION_RECORD *record = pException->ExceptionRecord;
-    QString errCode(QString::number(record->ExceptionCode, 16));
-    QString errAddr(QString::number((uint)record->ExceptionAddress, 16));
-    QString errFlag(QString::number(record->ExceptionFlags, 16));
-    QString errPara(QString::number(record->NumberParameters, 16));
-    qDebug()<<"errCode: "<<errCode;
-    qDebug()<<"errAddr: "<<errAddr;
-    qDebug()<<"errFlag: "<<errFlag;
-    qDebug()<<"errPara: "<<errPara;
-
-    HANDLE hDumpFile = CreateFile((LPCWSTR)QString("../dmp/" + time).utf16(),
-        GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-    if(hDumpFile != INVALID_HANDLE_VALUE) {
-          MINIDUMP_EXCEPTION_INFORMATION dumpInfo;
-          dumpInfo.ExceptionPointers = pException;
-          dumpInfo.ThreadId = GetCurrentThreadId();
-          dumpInfo.ClientPointers = TRUE;
-          MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(),hDumpFile, MiniDumpNormal, &dumpInfo, NULL, NULL);
-          CloseHandle(hDumpFile);
-     }
-     else{
-          qDebug()<<"hDumpFile == null";
-     }
-     return EXCEPTION_EXECUTE_HANDLER;
-}
+//=========================================================================================================================================================================================================================================
+//=========================================================================================================================================================================================================================================
 
 void    initStyle()
 {
-	QString fileName = ":/qss/silvery.css";
-	if (!fileName.isEmpty())
-	{
-		QFile file(fileName);
-		if (file.open(QFile::ReadOnly))
-		{
-			QString str = file.readAll();
-			qApp->setStyleSheet(str);
-		}
-	}
+    QString fileName = ":/qss/silvery.css";
+    if (!fileName.isEmpty())
+    {
+        QFile file(fileName);
+        if (file.open(QFile::ReadOnly))
+        {
+            QString str = file.readAll();
+            qApp->setStyleSheet(str);
+            file.close();
+        }
+    }
 }
 
+void    initKafaModule()
+{
+    GetKafkaUnit()->Instance();
+    GetKafkaUnit()->initProducer(GetConfigModule()->s.kafkaServer);
+    char brokers[255]{0};
+    strncpy(brokers, GetConfigModule()->s.kafkaServer, strlen(GetConfigModule()->s.kafkaServer));
+
+    char *topics[3] =
+    {
+        "411",
+        "423",
+        "431",
+    };
+
+    auto groupid = stool::uniqueGroupId("kafka");
+    GetKafkaUnit()->initConsumer(brokers, groupid.c_str(), fnMsgHandler,3, topics);
+
+    GetKafkaUnit()->startConsume();
+}
+
+void    freeKafkaModule()
+{
+    GetKafkaUnit()->stopConsume();
+    Sleep(1000);
+    GetKafkaUnit()->Release();
+}
+
+//=========================================================================================================================================================================================================================================
+//=========================================================================================================================================================================================================================================
+//=========================================================================================================================================================================================================================================
 void    OnInitInstance()
 {
     GetConfigModule()->Init();
 
     GetDataModule()->Init( GetConfigModule()->g.ShareDataDir );
 
-    GetInternalMsgSenderReceiver()->instantiateSenderReceiver();
-    GetInternalMsgSenderReceiver()->initProducer(GetConfigModule()->g.kafkaServer);
-    char brokers[255]{0};
-    strncpy(brokers, GetConfigModule()->g.kafkaServer, strlen(GetConfigModule()->g.kafkaServer));
-
-    char *topics[3]
-    {
-        "411",
-        "421",
-        "431",
-    };
-
-    auto groupid = stool::uniqueGroupId("kafka");
-    GetInternalMsgSenderReceiver()->initConsumer(brokers, groupid.c_str(), internalMsgHandler,3, topics);
-
-    GetInternalMsgSenderReceiver()->startConsume();
-
- //   GetInternalMsgSenderReceiver()->sendMsg("410", const_cast<char*>(innerOtcInquiry.c_str()), innerOtcInquiry.size());
- //   GetInternalMsgSenderReceiver()->sendMsg("410", const_cast<char*>(innerOtcInquiry.c_str()), innerOtcInquiry.size());
+    initKafaModule();
 
     int runmode = GetConfigModule()->g.RunMode;
     if(runmode == RUNMODE_NORMAL)
@@ -141,6 +94,23 @@ void    OnInitInstance()
     {
         //only data//do nothing
     }
+}
+
+void    OnEndInstance()
+{
+    int runmode = GetConfigModule()->g.RunMode;
+    if(runmode == RUNMODE_NORMAL)
+    {
+        GetTradeModule()->EndWork();
+
+        GetQuoteModule()->EndWork();
+    }
+    else if(runmode == RUNMODE_DATA2QUOTE)
+    {
+        GetQuoteModule()->EndWork();
+    }
+
+    GetDataModule()->EndWork();
 }
 
 void    OnExitInstance()
@@ -161,47 +131,59 @@ void    OnExitInstance()
 
     GetConfigModule()->Free();
 
-    GetInternalMsgSenderReceiver()->stopConsume();
-    Sleep(1000);
-    GetInternalMsgSenderReceiver()->Release();
-}
-
-void    OnEndInstance()
-{
-    int runmode = GetConfigModule()->g.RunMode;
-    if(runmode == RUNMODE_NORMAL)
-    {
-        GetTradeModule()->EndWork();
-
-        GetQuoteModule()->EndWork();
-    }
-    else if(runmode == RUNMODE_DATA2QUOTE)
-    {
-        GetQuoteModule()->EndWork();
-    }
-
-    GetDataModule()->EndWork();
+    freeKafkaModule();
 }
 
 int main(int argc, char *argv[])
 {
-    SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)ApplicationCrashHandler);
-	QApplication a(argc, argv);
+    QApplication a(argc, argv);
 
+    //[1]设置程序图标
     qApp->setWindowIcon(QIcon(":/image/main.ico"));
 
+    //[2]设置全局字体，防止QT 自己觉得分辨率变化，然后自己把字体变大
+    QFont font = qApp->font();
+    font.setPointSize(9);
+    qApp->setFont(font);
+
+    //[3]
     OnInitInstance();
 
     initStyle();
-
-    MainWindow* pMainWnd = nullptr;
 
     LoginDialog* pDlg = new LoginDialog();
     int rec = pDlg->exec();
     if (rec == QDialog::Accepted)
     {
-        pMainWnd = new MainWindow();
-        pMainWnd->showMaximized();
+        if(pDlg->GetViewMode() == 1)
+        {
+            //显示MDI
+            CMainWindow* pMainWnd = nullptr;
+            pMainWnd = new CMainWindow();
+            pMainWnd->showMaximized();
+        }
+        else
+        {
+            //显示SDI
+            CSDIWindow* pSdiWnd = new CSDIWindow();
+            if(GetConfigModule()->g.RunMode == RUNMODE_NORMAL)
+            {
+                std::vector<tagTTradeUserParam> arrUser;
+                GetConfigModule()->GetAllTradeUser(arrUser);
+                tagTTradeUserParam& o = arrUser[0];
+                QString strName;
+                std::string strmsg = o.aliasuser;
+                strName = XTCodec::AfGbk_ToQString(strmsg);
+                QOrderMgr* p = GetTradeModule()->GetMgr(o.type, o.broker, o.user);
+                QVariant v = QVariant::fromValue((void *)p);
+
+                pSdiWnd->setSDIUser(v, strName);
+            }
+
+            pSdiWnd->initControls();
+            pSdiWnd->showMaximized();
+        }
+
     }
     else
     {

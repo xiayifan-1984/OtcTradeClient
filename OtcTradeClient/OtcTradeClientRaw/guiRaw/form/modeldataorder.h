@@ -1,33 +1,29 @@
-#ifndef MODELDATAORDER_DEFINE_H
-#define MODLEDATAORDER_DEFINE_H
+#ifndef MODELDATA_ORDER_DEFINE_H
+#define MODLEDATA_ORDER_DEFINE_H
 
 #include "XTTradestruct.h"
 #include <QtWidgets>
 #include <vector>
-#include "parkorderbox.h"
-using namespace std;
 
-enum class ORDER_TO_SHOW
-{
-    ANY_ORDER,
-    ACCEPTED_ORDER,
-    PARK_ORDER,
-    ALGO_TWAP,
-    INVID_ORDER
-};
+using namespace std;
 
 class QOrderMgr;
 class ModelSingleOrder :public QAbstractTableModel
 {
 public:
     ModelSingleOrder(QObject *parent = nullptr);
+    enum ORDER_TO_SHOW
+    {
+        ANY_ORDER,          //所有Order
+        ACCEPTED_ORDER,     //挂单
+    };
 
 public:
     void        release();
     void        setOrderMgr(QOrderMgr* p);
     void        setOrderToShow(ORDER_TO_SHOW toShow);
-    void        drawAlgoOrders(const std::string& algoRef, QOrderMgr* p);
     QOrderMgr*  getMgr(){return m_pMgr;}
+
 public:
     QColor      getColorByDirection(char Direction) const;
     QColor      getColorByOffset(char offset) const;

@@ -42,7 +42,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "parkorderbox.h"
+#include <QtWidgets>
 
 class MdiChild;
 QT_BEGIN_NAMESPACE
@@ -52,12 +52,12 @@ class QMdiArea;
 class QMdiSubWindow;
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow
+class CMainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWindow();
+    CMainWindow();
 
 
 protected:
@@ -76,26 +76,25 @@ private slots:
     void            showDataOrderRecord();
     void            showDataTradeRecord();
     void            showDataPositionRecord();
-    void            showParkCondOrderTab();
-    void            showAlgoInputBox();
+    void            showParkOrderData();
+    void            showTwapOrderData();
 
     //[system]
-    void            ShowMDIContainer();
-    void            ShowDockContainer();
+    void            ShowMDIFrame();
+    void            ShowSDIUser(QAction* pAction);
     void            ShowConfiguration();
     void            ShowExit();
 
-    //[trade]
-    void            showRiskAvoid();
-    void            showSimpleOrderBox();
-    void            showInquiry();
-    void            showParkedCondOrderBox();
-    void            showRiskCalculationBox();
-    void            showAlgoOrderTab();
+    //[view]
+    void            showOtcRiskAvoid();
+    void            showOtcInquiry();
+    void            showOtcRiskCalculation();
+    void            showKBInputBox();
+    void            showParkOrderInputBox();
+    void            showTwapInputBox();
 
     //[debug]
     void            showSelectCommodity();
-    void            showKBInputBox();
     void            showDebugQuote();
     void            showSelectMainContract();
 

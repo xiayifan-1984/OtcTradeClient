@@ -22,7 +22,7 @@ background:qlineargradient(spread:pad,x1:0,y1:0,x2:0,y2:1,stop:0 #E1E4E6,stop:1 
 
 .QPushButton
 {
-    min-width:80px; /*设置最小宽度*/
+    min-width:80px; 
 }
 
 .QPushButton:hover{
@@ -209,16 +209,14 @@ QMenu,QMenu:disabled{
 color:#000000;
 background-color:#E1E4E6;
 border:1px solid #B2B6B9;
-margin:0px;
 }
 
 QMenu::item{
-padding:3px 20px;
+padding:6px 24px 6px 28px;
 }
 
-QMenu::indicator{
-width:13px;
-height:13px;
+QMenu::icon{
+padding: 0px 0px 0px 9px;
 }
 
 QMenu::item:selected{
@@ -458,6 +456,22 @@ border-top-width:0px;
 border-bottom-width:1px;
 /*background:qlineargradient(spread:pad,x1:0,y1:0,x2:0,y2:1,stop:0 #F2F3F4,stop:1 #E7E9EB);*/
 background:rgba(233,246,255, 255);
+}
+
+QHeaderView::down-arrow{
+    position:right;
+    image:url(:/qss/silvery/add_bottom.png);
+    width:10px;
+    height:10px;
+    padding-right: 5px;
+}
+
+QHeaderView::up-arrow{
+    position:right;
+    image:url(:/qss/silvery/add_top.png);
+    width:10px;
+    height:10px;
+    padding-right: 5px;
 }
 
 /*[030] ProgressBar=============================================================================================================================================*/
@@ -705,7 +719,61 @@ border:1px solid #B2B6B9;
 border-radius:3px;
 }
 
-/*[050]KBInputbox下单画面============================================================================================================================================================*/
+/*[037]TimeEdit DateEdit  DateTimeEdit============================================================================================================================================================*/
+QDateEdit[calendarPopup="true"]::down-arrow,QTimeEdit[calendarPopup="true"]::down-arrow,QDateTimeEdit[calendarPopup="true"]::down-arrow{
+    image:url(:/qss/silvery/add_bottom.png);
+    width:10px;
+    height:10px;
+    right:2px;
+}
+
+QDateEdit::drop-down,QTimeEdit::drop-down,QDateTimeEdit::drop-down{
+    subcontrol-origin:padding;
+    subcontrol-position:top right;
+    width:15px;
+    border-left-width:0px;
+    border-left-style:solid;
+    border-top-right-radius:3px;
+    border-bottom-right-radius:3px;
+    border-left-color:#B2B6B9;
+}
+
+QTimeEdit::up-button,QDateEdit::up-button,QDateTimeEdit::up-button{
+image:url(:/qss/silvery/add_top.png);
+width:10px;
+height:10px;
+padding:2px 5px 0px 0px;
+}
+
+QTimeEdit::down-button,QDateEdit::down-button,QDateTimeEdit::down-button{
+image:url(:/qss/silvery/add_bottom.png);
+width:10px;
+height:10px;
+padding:0px 5px 2px 0px;
+}
+
+QTimeEdit::up-button:pressed,QDateEdit::up-button:pressed,QDateTimeEdit::up-button:pressed{
+top:-2px;
+}
+
+QTimeEdit::down-button:pressed,QDateEdit::down-button:pressed,QDateTimeEdit::down-button:pressed{
+bottom:-2px;
+}
+
+
+
+
+/*[051]LoginDialog 登陆画面============================================================================================================================================================*/
+QWidget[name="logindialog"] QLineEdit{
+min-height:22px;
+}
+
+QWidget[name="logindialog"] QPushButton{
+min-width:22px;
+}
+
+
+/*[051]KBInputbox下单画面============================================================================================================================================================*/
 QWidget[name="kbinputbox"] QLineEdit{
 min-height:22px
 }
@@ -740,10 +808,171 @@ background:qlineargradient(spread:pad,x1:0,y1:0,x2:0,y2:1,stop:0 rgba(213,248,21
 
 
 
+/*[052]SmartInputbox/SmartTwapBox下单画面============================================================================================================================================================*/
+QWidget[name="smartinputbox"] QLabel{
+    font-weight:900;
+	color:rgb(145,145,145);
+}
+
+QWidget[name="smartinputbox"] QRadioButton{
+    font-weight:900;
+}
+
+QWidget[name="smartinputbox"] QCheckBox{
+    font-weight:900;
+}
+
+QWidget[name="smartinputbox"] QPushButton{
+    font-weight:900;
+    color:white;
+    min-height: 30px;
+}
+
+QWidget[name="smartinputbox"] QLineEdit{
+    min-height:22px;
+}
+
+QWidget[name="smartinputbox"] QSpinBox{
+    min-height:22px;
+}
+    
+QWidget[name="smartinputbox"] QDoubleSpinBox{
+    min-height:22px;
+}
+
+QWidget[name="smartinputbox"] QComboBox{
+    min-height:22px;
+}
+
+QWidget[name="smartinputbox"] QTimeEdit{
+    min-height:22px;
+}
+
+QWidget[name="smartinputbox"] QRadioButton[name="buyradio"]{
+    color: red;
+}
+
+QWidget[name="smartinputbox"] QRadioButton[name="openradio"]{
+    color: red;
+}
+
+QWidget[name="smartinputbox"] QPushButton[name="buy"]{
+    background:qlineargradient(spread:pad,x1:0,y1:0,x2:0,y2:1,stop:0 rgba(136,0,21,255),stop:1 rgba(136,0,21,255));
+}
+
+QWidget[name="smartinputbox"] QPushButton[name="buy"]:hover{
+    background:qlineargradient(spread:pad,x1:0,y1:0,x2:0,y2:1,stop:0 rgba(160,119,117,255),stop:1 rgba(254,225,225,255));
+}
+
+QWidget[name="smartinputbox"] QPushButton[name="sell"]{
+    background:qlineargradient(spread:pad,x1:0,y1:0,x2:0,y2:1,stop:0 rgba(34,177,76,255),stop:1 rgba(34,177,76,255));
+}
+
+QWidget[name="smartinputbox"] QPushButton[name="sell"]:hover{
+    background:qlineargradient(spread:pad,x1:0,y1:0,x2:0,y2:1,stop:0 rgba(213,248,213,255),stop:1 rgba(21,123,21,255) );
+}
+
+
+/*[054]SmartParkBox下单画面============================================================================================================================================================*/
+QWidget[name="smartparkbox"] QLabel{
+    font-weight:900;
+	color:rgb(145,145,145);
+}
+
+QWidget[name="smartparkbox"] QRadioButton{
+    font-weight:900;
+}
+
+QWidget[name="smartparkbox"] QCheckBox{
+    font-weight:900;
+}
+
+QWidget[name="smartparkbox"] QPushButton[base="input"]{
+    font-weight:900;
+    color:white;
+    min-height: 30px;
+}
+
+QWidget[name="smartparkbox"] QPushButton[name="cancel"]{
+    min-height: 10px;
+    min-width: 30px;
+}
+
+QWidget[name="smartparkbox"] QPushButton[name="park"]{
+    min-height: 10px;
+    min-width: 30px;
+}
+
+QWidget[name="smartparkbox"] QLineEdit{
+    min-height:22px;
+}
+
+QWidget[name="smartparkbox"] QSpinBox{
+    min-height:22px;
+}
+    
+QWidget[name="smartparkbox"] QDoubleSpinBox{
+    min-height:22px;
+}
+
+QWidget[name="smartparkbox"] QComboBox{
+    min-height:22px;
+}
+
+QWidget[name="smartparkbox"] QTimeEdit{
+    min-height:22px;
+}
+
+QWidget[name="smartparkbox"] QRadioButton[name="buyradio"]{
+    color: red;
+}
+
+QWidget[name="smartparkbox"] QRadioButton[name="openradio"]{
+    color: red;
+}
+
+QWidget[name="smartparkbox"] QPushButton[name="buy"]{
+    background:qlineargradient(spread:pad,x1:0,y1:0,x2:0,y2:1,stop:0 rgba(136,0,21,255),stop:1 rgba(136,0,21,255));
+}
+
+QWidget[name="smartparkbox"] QPushButton[name="buy"]:hover{
+    background:qlineargradient(spread:pad,x1:0,y1:0,x2:0,y2:1,stop:0 rgba(160,119,117,255),stop:1 rgba(254,225,225,255));
+}
+
+QWidget[name="smartparkbox"] QPushButton[name="sell"]{
+    background:qlineargradient(spread:pad,x1:0,y1:0,x2:0,y2:1,stop:0 rgba(34,177,76,255),stop:1 rgba(34,177,76,255));
+}
+
+QWidget[name="smartparkbox"] QPushButton[name="sell"]:hover{
+    background:qlineargradient(spread:pad,x1:0,y1:0,x2:0,y2:1,stop:0 rgba(213,248,213,255),stop:1 rgba(21,123,21,255) );
+}
 
 
 
 
+/*[055]SmartParkDialog 设定Park画面 ============================================================================================================================================================*/
+QWidget[name="smartparkdlg"] QLabel[name="info"]{
+    font-weight:900;
+}
+
+QWidget[name="smartparkdlg"] QSpinBox{
+    min-height:22px;
+    min-width: 90px;
+}
+    
+QWidget[name="smartparkdlg"] QDoubleSpinBox{
+    min-height:22px;
+    min-width: 90px;
+}
+
+QWidget[name="smartparkdlg"] QComboBox{
+    min-height:22px;
+}
+
+QWidget[name="smartparkdlg"] QTimeEdit{
+    min-height:22px;
+    min-width: 90px;
+}
 
 /*============================================================================================================================================================*/
 
@@ -831,49 +1060,6 @@ border-right-width:1px;
 border-top-width:0px;
 border-bottom-width:1px;
 background:qlineargradient(spread:pad,x1:0,y1:0,x2:0,y2:1,stop:0 #F2F3F4,stop:1 #E7E9EB);
-}
-
-*/
-
-/*
-QDateEdit[calendarPopup="true"]::down-arrow,QTimeEdit[calendarPopup="true"]::down-arrow,QDateTimeEdit[calendarPopup="true"]::down-arrow{
-    image:url(:/qss/silvery/add_bottom.png);
-    width:10px;
-    height:10px;
-    right:2px;
-}
-
-QDateEdit::drop-down,QTimeEdit::drop-down,QDateTimeEdit::drop-down{
-    subcontrol-origin:padding;
-    subcontrol-position:top right;
-    width:15px;
-    border-left-width:0px;
-    border-left-style:solid;
-    border-top-right-radius:3px;
-    border-bottom-right-radius:3px;
-    border-left-color:#B2B6B9;
-}
-
-QTimeEdit::up-button,QDateEdit::up-button,QDateTimeEdit::up-button,QDoubleSpinBox::up-button,QSpinBox::up-button{
-image:url(:/qss/silvery/add_top.png);
-width:10px;
-height:10px;
-padding:2px 5px 0px 0px;
-}
-
-QTimeEdit::down-button,QDateEdit::down-button,QDateTimeEdit::down-button,QDoubleSpinBox::down-button,QSpinBox::down-button{
-image:url(:/qss/silvery/add_bottom.png);
-width:10px;
-height:10px;
-padding:0px 5px 2px 0px;
-}
-
-QTimeEdit::up-button:pressed,QDateEdit::up-button:pressed,QDateTimeEdit::up-button:pressed,QDoubleSpinBox::up-button:pressed,QSpinBox::up-button:pressed{
-top:-2px;
-}
-
-QTimeEdit::down-button:pressed,QDateEdit::down-button:pressed,QDateTimeEdit::down-button:pressed,QDoubleSpinBox::down-button:pressed,QSpinBox::down-button:pressed,QSpinBox::down-button:pressed{
-bottom:-2px;
 }
 
 */

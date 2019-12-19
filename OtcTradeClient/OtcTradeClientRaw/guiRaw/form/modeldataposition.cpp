@@ -190,23 +190,14 @@ QVariant    ModelNormalPosition::headerData(int section, Qt::Orientation orienta
         QString str = "";
         switch (section)
         {
-   /*     case 0:str = "Code"; break;
-        case 1:str = "Direction"; break;
-        case 2:str = "Position"; break;
-        case 3:str = "YdPosition"; break;
-        case 4:str = "TodayPosition"; break;
-        case 5:str = "Cost"; break;
-        case 6:str = "Profit"; break;
-        case 7:str = "Hedge"; break;
-        case 8:str = "Exchange"; break;*/
-        case 0:str = "Code"; break;
-        case 1:str = "Direction"; break;
-        case 2:str = "Position"; break;
-        case 3:str = "TodayPosition"; break;
-        case 4:str = "Cost"; break;
-        case 5:str = "Profit"; break;
-        case 6:str = "Hedge"; break;
-        case 7:str = "Exchange"; break;
+        case 0:str = "合约"; break;
+        case 1:str = "方向"; break;
+        case 2:str = "总持仓"; break;
+        case 3:str = "今日持仓"; break;
+        case 4:str = "持仓成本"; break;
+        case 5:str = "盈亏"; break;
+        case 6:str = "套保标志"; break;
+        case 7:str = "交易所"; break;
         }
         return str;
     }
@@ -289,15 +280,14 @@ QVariant    ModelNormalPosition::data(const QModelIndex &index, int role) const
         }
             break;
         case 2:str.sprintf("%d", o.Position); break;
-        //case 3:str.sprintf("%d", o.YdPosition); break;
         case 3:str.sprintf("%d", o.TodayPosition); break;
         case 4:str.sprintf("%.04lf", o.PositionCost); break;
         case 5:str.sprintf("%.04lf", o.PositionProfit); break;
         case 6:
         {
             str = positionUtil::getStringByHedgeFlag(o);
-        }
             break;
+        }  
         case 7:
         {
             QExchange* pe = GetDataModule()->GetExchange(o.ExCode.ExchID);
@@ -307,8 +297,9 @@ QVariant    ModelNormalPosition::data(const QModelIndex &index, int role) const
                 pe->GetExchName(szbuf);
                 str = szbuf;
             }
-        }
             break;
+        }
+
         }
         return str;
     }
@@ -399,11 +390,11 @@ QVariant    ModelCompositePosition::headerData(int section, Qt::Orientation orie
         QString str = "";
         switch (section)
         {
-        case 0:str = "Code"; break;
-        case 1:str = "Direction"; break;
-        case 2:str = "Position"; break;
-        case 3:str = "Cost"; break;
-        case 4:str = "Hedge"; break;
+        case 0:str = "合约代码"; break;
+        case 1:str = "方向"; break;
+        case 2:str = "持仓数量"; break;
+        case 3:str = "持仓成本"; break;
+        case 4:str = "套保标志"; break;
         }
         return str;
     }

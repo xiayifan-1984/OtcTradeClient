@@ -2,9 +2,16 @@
 #include <cmath>
 #include "Cdf.h"
 
-double futureoptpricing::future_delta(char otcType, int direction, double S, double X, double T, double r, double v)
+double futureoptpricing::future_delta(char otcType, int direction, 
+                        double S,       //标的 现价
+                        double X,       //执行价
+                        double T,       //T =(t-t0)/365   t代表到期日  t0代表今天
+                        double r,       ////r =ln(1+r0)   r0代表不连续的年化利率
+                        double v )      //波动率
 {
-    if(T == 0.0 || v == 0.0) return 0;
+    if(T == 0.0 || v == 0.0) 
+        return 0;
+
     double d1 = (log(S/X)+(v*v/2.0)*T)/(v*sqrt(T));
     if(otcType == 'c')
     {
@@ -18,18 +25,35 @@ double futureoptpricing::future_delta(char otcType, int direction, double S, dou
 
 
 
-double futureoptpricing::future_gamma(char otcType, int direction, double S, double X, double T, double r, double v)
+double futureoptpricing::future_gamma(char otcType, int direction, 
+                        double S, 
+                        double X, 
+                        double T, 
+                        double r, 
+                        double v)
 {
-    if(T == 0.0 || v == 0.0) return 0;
+    if(T == 0.0 || v == 0.0) 
+        return 0;
+
     double d1 = (log(S/X)+(v*v/2.0)*T)/(v*sqrt(T));
+
     return exp(-1.0*r*T)*(Cdf::dN(d1))/(S*v*sqrt(T))*direction;
 }
 
-double futureoptpricing::future_otcprice(char otcType, int direction, double S, double X, double T, double r, double v)
+double futureoptpricing::future_otcprice(char otcType, int direction, 
+                        double S, 
+                        double X, 
+                        double T, 
+                        double r, 
+                        double v)
 {
-    if(T == 0.0 || v == 0.0) return 0;
+    if(T == 0.0 || v == 0.0) 
+        return 0;
+
     double d1 = (log(S/X)+(v*v/2)*T)/(v*sqrt(T));
+
     double d2 = d1 - v*sqrt(T);
+
     if(otcType == 'c')
     {
         return S*exp(-1*r*T)*Cdf::N(d1) - X*exp(-1*r*T)*Cdf::N(d2);
@@ -40,12 +64,18 @@ double futureoptpricing::future_otcprice(char otcType, int direction, double S, 
     }
 }
 
-
-
-double futureoptpricing::future_theta(char otcType, int direction, double S, double X, double T, double r, double v)
+double futureoptpricing::future_theta(char otcType, int direction, 
+                        double S, 
+                        double X, 
+                        double T, 
+                        double r, 
+                        double v)
 {
-    if(T == 0.0 || v == 0.0) return 0;
+    if(T == 0.0 || v == 0.0) 
+        return 0;
+
     double d1 = (log(S/X)+(v*v/2)*T)/(v*sqrt(T));
+
     double d2 = d1 - v*sqrt(T);
 
     if(otcType == 'c')
@@ -60,18 +90,34 @@ double futureoptpricing::future_theta(char otcType, int direction, double S, dou
 
 
 
-double futureoptpricing::future_vega(int direction, double S, double X, double T, double r, double v)
+double futureoptpricing::future_vega(int direction, 
+                        double S, 
+                        double X, 
+                        double T, 
+                        double r, 
+                        double v)
 {
-    if(T == 0.0 || v == 0.0) return 0;
+    if(T == 0.0 || v == 0.0) 
+        return 0;
+
     double d1 = (log(S/X)+(v*v/2)*T)/(v*sqrt(T));
+
     return direction/100.0*(S*exp(-1.0*r*T)*Cdf::dN(d1)*sqrt(T));
 }
 
-double futureoptpricing::future_rho(char otcType, int direction, double S, double X, double T, double r, double v)
+double futureoptpricing::future_rho(char otcType, int direction, 
+                        double S, 
+                        double X, 
+                        double T, 
+                        double r, 
+                        double v)
 {
-    if(T == 0.0 || v == 0.0) return 0;
+    if(T == 0.0 || v == 0.0) 
+        return 0;
+
     double d1 = (log(S/X)+(v*v/2)*T)/(v*sqrt(T));
-    double d2 = d1 - v*sqrt(T);
+
+    //double d2 = d1 - v*sqrt(T);
 
     return -1.0*T*future_otcprice(otcType, direction, S, X, T, r, v)*direction/100.0;
 }

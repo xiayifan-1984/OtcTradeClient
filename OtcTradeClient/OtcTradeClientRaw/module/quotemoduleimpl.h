@@ -22,10 +22,14 @@ public:
 
     void    SetCodeList(tagXTInstrument* pArr, int nCount);
 
+    void    GetRegisterCodeList(std::vector<tagXTInstrument>& arr);
+
     int		GetSnapShot(tagXTInstrument& ExCode, tagXTSnapshot* pin);
 
     int		GetSnapShot2(int exchange, const char* code, tagXTSnapshot* pin);
 
+    double  GetLastPrice(tagXTInstrument& ExCode);
+    
 protected:
     static  void    s_OnRecvData(void* fthis, int Market, int MsgType, const char * pszBuf, int nBytes);
     void            OnRecvData(int Market, int MsgType, const char * pszBuf, int nBytes);

@@ -23,7 +23,6 @@ protected:
     void            initCompleter();
     void            initControls(); //初始化控件
     void            configControls();  //控件默认状态
-    void            adjustControls();   //当输入确定的代码后，调整控件的某些属性
 
 protected:
     void            setCurCommodity(tagXTInstrument& oCode);
@@ -39,10 +38,7 @@ private slots:
     void            on_sellopenbtn_clicked_or_autoshort();   //卖出开仓
     void            on_sellclosebtn_clicked();  //卖出平仓
     void            onOrderEvent(OrderEventArgs*);
-    void            onAutoChkClicked();
-    void            onCondChkClicked();
-    void            onParkedChkClicked();
-
+   
 protected:
     tagXTInstrument     m_oExCode;
 
@@ -79,10 +75,7 @@ protected:
     QCheckBox*      _chkAny;
     QCheckBox*      _chCloseTodayOrYes;
 
-    QCheckBox*      _chkAutoKP;
-    QCheckBox*      _chkParkedOrder;
-    QCheckBox*      _chkCondOrder;
-
+    
     QPushButton*    _btnBuyOpen;
     QPushButton*    _btnBuyClose;
     QPushButton*    _btnSellOpen;
@@ -91,13 +84,10 @@ protected:
 protected:
     QCompleter*         _completer;
     QStringListModel*   _codelistModel;
-private:
-    bool            m_isAutoOpenClose;
 
 private:
     void                 closeEvent(QCloseEvent *event);
-    std::pair<int, int>  getShortOrLongPostionsBy(tagXTInstrument&, bool);
-    void                 closePostion(char, int, int);
+    void                 closePostion(char direction, int vol);
 };
 
 

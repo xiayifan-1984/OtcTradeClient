@@ -4,7 +4,8 @@
 #include "XTCodec.h"
 #include "updownlineedit.h"
 
-SelectCommodity::SelectCommodity(QWidget* parent/* = nullptr*/)
+SelectCommodity::SelectCommodity(QWidget* parent/* = nullptr*/):
+    QDialog (parent)
 {
     _curExchange = nullptr;
 
@@ -248,7 +249,7 @@ void    SelectCommodity::onCodetextChanged(const QString &text)
     //[2]
     std::vector<QExchange*> arrExch;
     GetDataModule()->GetExchangeList(arrExch);
-    for(int i=0; i< arrExch.size(); i++)
+    for(size_t i=0; i< arrExch.size(); i++)
     {
         QExchange* p = arrExch[i];
         int nsize = p->GetCodeList(nullptr, 0);
@@ -270,7 +271,7 @@ void    SelectCommodity::onCodetextChanged(const QString &text)
     }
 
     _listCode->clear();
-    for(int k = 0; k < arrTarget.size(); k++)
+    for(size_t k = 0; k < arrTarget.size(); k++)
     {
         QString strCode = arrTarget[k].Code;
 

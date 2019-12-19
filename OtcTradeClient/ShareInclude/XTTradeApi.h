@@ -29,11 +29,11 @@ public:
 class CXTTradeApi
 {
 public:
-        virtual void            Release() = 0;
+    virtual void    Release() = 0;
 
 	virtual int		Init() = 0;
 
-        virtual void            RegisterSpi(CXTTradeSpi *pSpi) = 0;
+    virtual void    RegisterSpi(CXTTradeSpi *pSpi) = 0;
 
 	virtual int		ReqOrderInsert(tagXTInputOrderField *pInputOrder, int nRequestID) = 0;
 

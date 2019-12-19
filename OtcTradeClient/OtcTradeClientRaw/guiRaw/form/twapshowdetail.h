@@ -2,22 +2,29 @@
 #define TWAPSHOWDETAIL_H
 
 #include <QtWidgets>
-#include "modeldataorder.h"
-#include "ordermgrimpl.h"
+#include "trademodule.h"
 
-class TwapShowDetail:public QWidget
+class ModelTwapOrder;
+class CTwapShowDetail:public QWidget
 {
     Q_OBJECT
 public:
-    explicit TwapShowDetail(QObject* parent = nullptr);
-    void setContent(QTableView* pView, ModelSingleOrder* pModel,QOrderMgr* user);
+    explicit    CTwapShowDetail(QObject* parent = nullptr);
+    void        initData(const std::string& twapRef, QOrderMgr* p);
+
+protected:
+    void        initControls();
 
 private slots:
-    void  on_tableview_doubleClicked(const QModelIndex& index);
+    void        on_tableview_doubleClicked(const QModelIndex& index);
+
 private:
-    QTableView* _tabView;
-    QOrderMgr* _user;
-    ModelSingleOrder* _model;
+    QTableView*         _tabView;
+
+    std::string         _twapRef;
+    QOrderMgr*          _orderMgr;
+    ModelTwapOrder*     _model;
+
 };
 
 #endif // TWAPSHOWDETAIL_H

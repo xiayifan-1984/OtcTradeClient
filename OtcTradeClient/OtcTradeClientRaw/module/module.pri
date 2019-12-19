@@ -2,38 +2,28 @@ HEADERS += \
     $$PWD/configmodule.h \
     $$PWD/datamodule.h \
     $$PWD/datamoduleimpl.h \
-    $$PWD/exchangeimpl.h \
     $$PWD/quotemodule.h \
     $$PWD/quotemoduleimpl.h \
     $$PWD/trademodule.h \
     $$PWD/trademoduleimpl.h \
-    $$PWD/ordermgrimpl.h \
     $$PWD/eventcentermodule.h \
-    $$PWD/internalmessaging.h \
-    $$PWD/MConsume.h \
-    $$PWD/MProduce.h \
-    $$PWD/kafkamsghandler.h \
-    $$PWD/iInternalSenderReceiver.h \
+    $$PWD/kafkamsgunit.h \
     $$PWD/otcoptionmodule.h \
-    $$PWD/otcoptionmoduleimpl.h \
     $$PWD/parkordermgr.h \
-    $$PWD/algoordermgr.h
+    $$PWD/twapordermgr.h
 
 SOURCES += \
     $$PWD/configmodule.cpp \
     $$PWD/datamodule.cpp \
     $$PWD/datamoduleimpl.cpp \
-    $$PWD/exchangeimpl.cpp \
     $$PWD/quotemodule.cpp \
     $$PWD/quotemoduleimpl.cpp \
     $$PWD/trademodule.cpp \
     $$PWD/trademoduleimpl.cpp \
-    $$PWD/ordermgrimpl.cpp \
     $$PWD/eventcentermodule.cpp \
-    $$PWD/internalmessaging.cpp \
-    $$PWD/otcoptionmoduleimpl.cpp \
+    $$PWD/kafkamsgunit.cpp \
     $$PWD/otcoptionmodule.cpp \
     $$PWD/parkordermgr.cpp \
-    $$PWD/algoordermgr.cpp
+    $$PWD/twapordermgr.cpp
 
     

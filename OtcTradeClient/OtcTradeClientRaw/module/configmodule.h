@@ -22,23 +22,27 @@ using namespace std;
 typedef struct
 {
     int         RunMode;                //RUNMODE_
-    double      vol;                    //Volatility
-    double      riskFreeRate;           // risk free rate , default 4.5%
+   
     char        ExeDir[255];            //EXE所在目录
-    char        kafkaServer[255];
+    
 
     char        ShareDataDir[255];      //共享数据目录
     char        UserDir[255];           //当前用户目录
     char        CurUser[255];
-}tagGlobalSetting;
+}tagTGlobalParam;
 
 typedef struct
 {
     char        TradeLine[255];         //TradeLine.ini的路径
     char        TradeUser[255];         //TradeUser.ini的路径
-
     int         TradeUserCount;         //交易用户的个数
-}tagSessionSetting;
+
+    double      vol;                    //Volatility
+    double      riskFreeRate;           // risk free rate , default 4.5%
+    char        kafkaServer[255];
+}tagTSystemParam;
+
+
 
 typedef struct
 {
@@ -47,7 +51,7 @@ typedef struct
     char        user[32];           //user
     char        aliasuser[64];      //别名
     char        tradelimit[512];    //交易范围
-}tagOneTradeUser;
+}tagTTradeUserParam;
 
 typedef struct
 {
@@ -58,7 +62,7 @@ typedef struct
 
     //......
 
-}tagMemorySave;
+}tagTDynamicMemory;
 
 #pragma pack()
 
@@ -75,37 +79,32 @@ public:
 
 public:
     //[1]
-    int                         GetTradeUserBy(const char* pProductID, vector<tagOneTradeUser>& arrUser);
-    int                         GetAllTradeUser(vector<tagOneTradeUser>& arrUser);
-    //[2]
-    int                         GetAllMainContract(vector<tagXTInstrument>& arrExCode);
+    int                         GetTradeUserBy(const char* pProductID, vector<tagTTradeUserParam>& arrUser);
+    int                         GetAllTradeUser(vector<tagTTradeUserParam>& arrUser);
     //[3]
-    void                        GetOrderRef(char* pszOrderRef,  char* pszMarker);
-    void                        insertRiskVol(tagXTInstrument& code, double vol);
-    double                      getRiskVol(tagXTInstrument& code);
-    const TimeSections&         getMarketOpenedTimeSec();
+    void                        GetOrderRef(char* pszOutOrderRef,  char* pszMarker);
 
-
+    void                        InsertRiskVol(tagXTInstrument& ExCode, double vol);
+    double                      GetRiskVol(tagXTInstrument& code);
+    const TimeSections&         GetMarketOpenedTimeSec();
 
 public:
-    tagGlobalSetting            g;
-    tagSessionSetting           s;
-    tagMemorySave               m;
+    tagTGlobalParam             g;
+    tagTSystemParam             s;
+    tagTDynamicMemory           m;
 
 protected:
     void                        initTradeUser();
     void                        initClient();
-    void                        initMainContract();
     void                        initTradeTimeSection();
     void                        initVolatilitys();
     void                        storeVolatilitys();
 
 protected:
-    vector<tagOneTradeUser>     m_arrTradeUser;
-    unordered_map<string, vector<string>> m_tradableProducts;
-    vector<tagXTInstrument>     m_arrMainContract;
+    vector<tagTTradeUserParam>     m_arrTradeUser;
+
     unordered_map<string, vector<pair<QTime, QTime>>> m_tradeTimeSection;
-    unordered_map<string, double> m_instRiskVols;
+    unordered_map<string, double>   m_mapRiskVols;
 };
 
 

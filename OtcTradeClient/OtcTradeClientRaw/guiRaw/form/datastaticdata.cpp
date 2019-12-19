@@ -6,7 +6,7 @@
 class StaticDataModel : public QAbstractTableModel
 {
 public:
-    StaticDataModel(QObject *parent = nullptr)
+    StaticDataModel(QObject *parent = nullptr): QAbstractTableModel(parent)
     {
         m_pNameTable = nullptr;
         m_nDataSize =0;

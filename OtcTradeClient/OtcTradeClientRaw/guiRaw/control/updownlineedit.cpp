@@ -1,6 +1,7 @@
 #include "updownlineedit.h"
 
 UpDownLineEdit::UpDownLineEdit(QWidget* parent /* = nullptr*/)
+    :QLineEdit(parent)
 {
 
 }

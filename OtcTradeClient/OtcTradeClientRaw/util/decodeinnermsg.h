@@ -38,14 +38,17 @@ class otcOptPositionRsp
 public:
     otcOptPositionRsp();
     ~otcOptPositionRsp() = default;
+
 public:
     std::string resID;
-    int  reqID;
+    int         reqID;
     std::vector<otcOptPosition> positions;
 };
+
+
 namespace Decodeinnermsg
 {
-    bool decodeOtcOptPositionRsp(const char*, int len, otcOptPositionRsp&);
+    bool    decodeOtcOptPositionRsp(const char*, int len, otcOptPositionRsp&);
 }
 
 #endif // DECODEINNERMSG_H

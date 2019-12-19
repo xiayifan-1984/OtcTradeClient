@@ -4,15 +4,13 @@
 #include <string>
 #include <map>
 #include <mutex>
-#include "parkorderbox.h"
-#include "ordermgrimpl.h"
 #include <vector>
-extern ParkOrderBox* getParkOrderBox();
+
 using namespace std;
 
 #include <QDebug>
 
-extern QOrderMgr* GetOrderMgrbyInstrument(tagXTInstrument& curCode);
+
 //====================================================================================================================================================================================================
 class	CtpMarket
 {
@@ -162,7 +160,7 @@ typedef struct
 int     QQuoteModuleImpl::StartWork()
 {
     typedef int (__stdcall *pfnBeginWork)(tagQuoteSetting*);
-    m_dll.setFileName("TransrcCtp6311Raw.dll");
+    m_dll.setFileName("TransrcCtp6315Raw.dll");
 
     if(m_dll.load())
     {
@@ -195,6 +193,20 @@ void    QQuoteModuleImpl::EndWork()
         }
     }
 
+}
+
+void    QQuoteModuleImpl::GetRegisterCodeList(std::vector<tagXTInstrument>& arr)
+{
+    set<string>::iterator itb = m_arrCode.begin();
+    while( itb != m_arrCode.end() )
+    {
+        tagXTInstrument oExCode;
+        memset(&oExCode, 0, sizeof(oExCode));
+        strcpy(oExCode.Code, itb->c_str() );
+        arr.push_back(oExCode);
+
+        itb++;
+    }
 }
 
 void    QQuoteModuleImpl::SetCodeList(tagXTInstrument* pArr, int nCount)
@@ -262,7 +274,7 @@ void    QQuoteModuleImpl::s_OnRecvData(void* fthis, int Market, int MsgType, con
     }
 }
 
-void    QQuoteModuleImpl:: OnRecvData(int Market, int MsgType, const char * pszBuf, int nBytes)
+void    QQuoteModuleImpl::OnRecvData(int Market, int MsgType, const char * pszBuf, int nBytes)
 {
     Q_UNUSED(Market)
     Q_UNUSED(MsgType)
@@ -275,3 +287,20 @@ void    QQuoteModuleImpl:: OnRecvData(int Market, int MsgType, const char * pszB
 }
 
 
+double  QQuoteModuleImpl::GetLastPrice(tagXTInstrument& ExCode)
+{
+    double curPrice = 0.01;
+
+    tagXTSnapshot quoteSnap;
+    int iret = GetSnapShot(ExCode, &quoteSnap);
+    if (iret >0)
+    {
+        curPrice = quoteSnap.LastPrice;
+    }
+    else
+    {
+        SetCodeList(&ExCode, 1);
+    }
+    
+    return curPrice;
+}

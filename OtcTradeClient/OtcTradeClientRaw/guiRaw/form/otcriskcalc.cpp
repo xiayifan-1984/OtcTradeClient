@@ -5,10 +5,9 @@
 #include "datamodule.h"
 #include "XTCodec.h"
 #include <QString>
-#include "viewOtcPosition.h"
+#include "otcpositiondata.h"
 #include "stool.h"
 
-extern QMdiArea * G_midArea;
 OtcRiskCalc::OtcRiskCalc(QWidget *parent)
 {
     m_vol = 0.2;
@@ -272,14 +271,7 @@ void OtcRiskCalc::onWidget_itemDoubleClicked(QTableWidgetItem *pItem)
     }
     if(row ==0 && col ==1)
     {
-        ViewOtcPosition* widget = new ViewOtcPosition();
-        widget->setCurCommodity(m_curCode);
-        if(G_midArea)
-        {
-            G_midArea->addSubWindow(widget);
-        }
-       // widget->setWindowFlags(widget->windowFlags()|Qt::WindowStaysOnTopHint);
-        widget->show();
+
     }
     if(row == 0 && col == 6)
     {

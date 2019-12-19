@@ -39,7 +39,7 @@ TransactionEventArgs::TransactionEventArgs(int  type)
     memset(orderref, 0, sizeof(orderref));
 }
 
-AlgoOrderEvent::AlgoOrderEvent(int type)
+TwapOrderEvent::TwapOrderEvent(int type)
     :QEvent (Type(type))
 {
     usertype = 0;       //账号信息，一个完整的账号信息包括:账号类型，经纪商号码，账号
@@ -66,6 +66,7 @@ QEventCenter*      GetEventCenter()
     if(nullptr == g_eventcenter)
     {
         g_eventcenter = new QEventCenter();
+        g_eventcenter->Init();
     }
 
     return g_eventcenter;
@@ -83,12 +84,13 @@ QEventCenter::~QEventCenter()
 
 int      QEventCenter::Init()
 {
-     QEvent::registerEventType(CET_Order);
-     QEvent::registerEventType(CET_Transact);
-     QEvent::registerEventType(CET_ParkOrder);
-     QEvent::registerEventType(CET_SysNotify);
+    QEvent::registerEventType(CET_Order);
+    QEvent::registerEventType(CET_Transact);
+    QEvent::registerEventType(CET_ParkOrder);
+    QEvent::registerEventType(CET_TwapTwap);
+    QEvent::registerEventType(CET_SysNotify);
 
-     return 1;
+    return 1;
 }
 
 void     QEventCenter::Free()
@@ -111,7 +113,7 @@ void QEventCenter::PostParkOrderMessage(ParkOrderEvent *event)
     qApp->postEvent(this, event);
 }
 
-void QEventCenter::PostAlgoOrderMessage(AlgoOrderEvent *event)
+void QEventCenter::PostTwapOrderMessage(TwapOrderEvent *event)
 {
     qApp->postEvent(this, event);
 }
@@ -141,22 +143,16 @@ void     QEventCenter::customEvent(QEvent *event)
 
         emit fireParkOrderEvent(e);
     }
-    else if(event->type() == static_cast<QEvent::Type>(CET_ConditionOrder))
-    {
-        ParkOrderEvent* e = static_cast<ParkOrderEvent*>(event);
-
-        emit fireParkOrderEvent(e);
-    }
     else if(event->type() == static_cast<QEvent::Type>(CET_SysNotify) )
     {
         SysNotifyEventArgs* e = static_cast<SysNotifyEventArgs*>(event);
 
         emit fireSysNotifyEvent(e);
     }
-    else if(event->type() == static_cast<QEvent::Type>(CET_AlgoTwap))
+    else if(event->type() == static_cast<QEvent::Type>(CET_TwapTwap))
     {
-        AlgoOrderEvent* e = static_cast<AlgoOrderEvent*>(event);
-        emit fireAlgoTwapOrderEvent(e);
+        TwapOrderEvent* e = static_cast<TwapOrderEvent*>(event);
+        emit fireTwapTwapOrderEvent(e);
     }
 }
 

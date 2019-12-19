@@ -1,9 +1,7 @@
 #include "parkordermgr.h"
 #include "string.h"
-#include <vector>
-#include <memory>
 #include "rpcstream.h"
-#include "internalmessaging.h"
+#include "kafkamsgunit.h"
 #include "stool.h"
 #include "eventcentermodule.h"
 
@@ -22,195 +20,163 @@ std::shared_ptr<ParkedOrderMgr> GetParkedOrderMgr()
 }
 
 
-ParkCondOrderMgrByUser::ParkCondOrderMgrByUser(const tagOneTradeUser &user)
+ParkCondOrderMgrByUser::ParkCondOrderMgrByUser(const tagTTradeUserParam &user)
 {
     memset(&m_user, 0, sizeof(m_user));
     memcpy(&m_user, &user, sizeof(m_user));
     m_reqCount = 0;
 }
 
+//===============================================================================================================================================================
 void ParkCondOrderMgrByUser::cancelParkOrder(string parkId)
 {
-    auto search = m_parkOrderInfo.find(parkId);
-    if(search != m_parkOrderInfo.end() && search->second.ParkedStatus == XT_PAOS_NotSend)
+    auto search = m_mapOrders.find(parkId);
+    if(search != m_mapOrders.end() && search->second.ParkedStatus == XT_PAOS_NotSend)
     {
-        tagXTParkedOrderActionField cancelOrder;
-        memset(&cancelOrder, 0, sizeof(tagXTParkedOrderActionField));
-        cancelOrder.ParkedType = XT_CC_ParkedOrder;
-        cancelOrder.ActionFlag = XT_AF_Delete;
-        strncpy(cancelOrder.ParkedOrderID, parkId.c_str(), parkId.size());
+        tagXTParkedOrderActionField oField;
+        memset(&oField, 0, sizeof(oField));
+        oField.BrokerID = m_user.broker;
+        strcpy(oField.UserID, m_user.user);
+        oField.ExCode = search->second.ExCode;
 
-        memcpy(&cancelOrder.ExCode, &(search->second.ExCode), sizeof(search->second.ExCode));
-        reqParkedOrderAction(&cancelOrder);
+        oField.ActionFlag = XT_AF_Delete;
+        oField.ParkedType = search->second.ParkedType;
+        strcpy(oField.ParkedOrderID, search->second.ParkedOrderID);
+
+        reqParkedOrderAction(&oField);
     }
 }
 
-void ParkCondOrderMgrByUser::cancelCondOrder(string parkId)
+void  ParkCondOrderMgrByUser::manualSendOrder(std::string parkId)
 {
-    auto search = m_condOrderInfo.find(parkId);
-    if(search != m_condOrderInfo.end() && search->second.ParkedStatus == XT_PAOS_NotSend)
+    auto search = m_mapOrders.find(parkId);
+    if(search != m_mapOrders.end() )
     {
-        tagXTParkedOrderActionField cancelOrder;
-        memset(&cancelOrder, 0, sizeof(tagXTParkedOrderActionField));
-        cancelOrder.ParkedType = search->second.ParkedType;
-        cancelOrder.ActionFlag = XT_AF_Delete;
-        strncpy(cancelOrder.ParkedOrderID, parkId.c_str(), parkId.size());
+        if( search->second.ParkedType == XT_PT_HUMAN && search->second.ParkedStatus == XT_PAOS_NotSend)
+        {
+            tagXTParkedOrderActionField oField;
+            memset(&oField, 0, sizeof(oField));
+            oField.BrokerID = m_user.broker;
+            strcpy(oField.UserID, m_user.user);
+            oField.ExCode = search->second.ExCode;
 
-        memcpy(&cancelOrder.ExCode, &(search->second.ExCode), sizeof(search->second.ExCode));
-        reqParkedOrderAction(&cancelOrder);
+            oField.ActionFlag = XT_AF_HUMANSEND;
+            oField.ParkedType = search->second.ParkedType;
+            strcpy(oField.ParkedOrderID, search->second.ParkedOrderID);
+
+            reqParkedOrderAction(&oField);
+        }
     }
 }
 
-int ParkCondOrderMgrByUser::reqParkedOrderInsert(tagXTParkedOrderField *inputOrder)
+//===============================================================================================================================================================
+int ParkCondOrderMgrByUser::reqParkedOrderInsert(tagXTParkedOrderInputField *pField)
 {
-    if(!inputOrder) return -1;
-    char tmpBuf[4096]{0};
-    RpcWrite rw(tmpBuf, 4095);
+    if(!pField)
+    {
+        return -1;
+    }
+
+    char tmpBuf[8192] = {0};
+    RpcWrite rw(tmpBuf, 8191);
     rw.WriteInt32(2);
-    rw.WriteSolidPtr((char*)inputOrder, sizeof(tagXTParkedOrderField));
+    rw.WriteSolidPtr((char*)pField, sizeof(tagXTParkedOrderInputField));
     rw.WriteInt32(++m_reqCount);
     if(!rw.IsError())
     {
-        return sendRequest(2, 21, tmpBuf, rw.GetOffset(), m_user.broker, m_user.user);
+        return sendRequest(2, 21, tmpBuf, rw.GetOffset() );
     }
 }
 
-int ParkCondOrderMgrByUser::reqParkedOrderAction(tagXTParkedOrderActionField *inputAction)
+int ParkCondOrderMgrByUser::reqParkedOrderAction(tagXTParkedOrderActionField *pField)
 {
-    if(!inputAction) return -1;
-    char tmpBuf[4096]{0};
-    RpcWrite rw(tmpBuf, 4095);
+    if(!pField)
+    {
+        return -1;
+    }
+
+    char tmpBuf[8192] = {0};
+    RpcWrite rw(tmpBuf, 8191);
     rw.WriteInt32(2);
-    rw.WriteSolidPtr((char*)inputAction, sizeof(tagXTParkedOrderField));
+    rw.WriteSolidPtr((char*)pField, sizeof(tagXTParkedOrderActionField));
     rw.WriteInt32(++m_reqCount);
     if(!rw.IsError())
     {
-        return sendRequest(2, 22, tmpBuf, rw.GetOffset(), m_user.broker, m_user.user);
+        return sendRequest(2, 22, tmpBuf, rw.GetOffset() );
     }
 }
 
-int ParkCondOrderMgrByUser::reqQryParkedOrder(tagXTQryParkedOrderField *inputQry)
+int ParkCondOrderMgrByUser::reqQryParkedOrder(tagXTQryParkedOrderField *pField)
 {
-    if(!inputQry) return -1;
-    qDebug() << "Inquiry Parkorder info !" ;
-    char tmpBuf[4096]{0};
-    RpcWrite rw(tmpBuf, 4095);
+    if(!pField)
+    {
+        return -1;
+    }
+
+    qDebug() << "Query ParkOrder info !" ;
+    char tmpBuf[8192] = {0};
+    RpcWrite rw(tmpBuf, 8191);
     rw.WriteInt32(2);
-    rw.WriteSolidPtr((char*)inputQry, sizeof(tagXTQryParkedOrderField));
+    rw.WriteSolidPtr((char*)pField, sizeof(tagXTQryParkedOrderField));
     rw.WriteInt32(++m_reqCount);
     if(!rw.IsError())
     {
-        return sendRequest(2, 20, tmpBuf, rw.GetOffset(), m_user.broker, m_user.user);
+        return sendRequest(2, 20, tmpBuf, rw.GetOffset() );
     }
 }
 
-int ParkCondOrderMgrByUser::onRspQryParkedOrder(tagXTParkedOrderField *inputOrder, tagXTRspInfoField *pRspInfo, int reqId, bool isLast)
+int ParkCondOrderMgrByUser::onRspQryParkedOrder(tagXTParkedOrderField *pField, tagXTRspInfoField *pRspInfo, int reqId, bool isLast)
 {
-    if(inputOrder)
+    if(pField)
     {
-        qDebug() << "receive park order insert " << inputOrder->ParkedOrderID;
-        if(pRspInfo)
-        {
-            qDebug()<<pRspInfo->ErrorMsg;
-            return 0;
-        }
-        if(inputOrder->ParkedType == XT_CC_ParkedOrder)
-        {
-            string key(inputOrder->ParkedOrderID);
-            m_parkOrderInfo[key] = *inputOrder;
-        }
-        if((inputOrder->ParkedType >= XT_CC_LastPriceGreaterThanStopPrice && inputOrder->ParkedType <= XT_CC_AskPriceGreaterThanStopPrice)
-           || (inputOrder->ParkedType >= XT_CC_AskPriceGreaterEqualStopPrice && inputOrder->ParkedType <= XT_CC_BidPriceLesserEqualStopPrice))
-        {
-            string key(inputOrder->ParkedOrderID);
-            m_condOrderInfo[key] = *inputOrder;
-        }
+        qDebug() << "receive park order query " << pField->ParkedOrderID;
+
+        string key(pField->ParkedOrderID);
+        m_mapOrders[key] = *pField;
     }
 }
 
-int ParkCondOrderMgrByUser::onRtnParkedOrder(tagXTParkedOrderField *inputOrder)
+int ParkCondOrderMgrByUser::onRtnParkedOrder(tagXTParkedOrderField *pField)
 {
-    if(inputOrder)
+    if(pField)
     {
-        qDebug() << "receive park order resp " << inputOrder->ParkedOrderID;
-        if(inputOrder->ParkedType == XT_CC_ParkedOrder)
-        {
-            string key(inputOrder->ParkedOrderID);
-            m_parkOrderInfo[key] = *inputOrder;
-            if(inputOrder->ParkedStatus == XT_PAOS_NotSend)
-            {
-                m_parkTime[key] = QTime::QTime::currentTime();
-            }
+        qDebug() << "receive park order return " << pField->ParkedOrderID;
 
-            QEventCenter* pEventCenter = GetEventCenter();
-            ParkOrderEvent* e = new ParkOrderEvent(CET_ParkOrder);
-            e->usertype = 0;
-            e->subevent = ORDER_EVENT_UPDATE;
-            e->broker = inputOrder->BrokerID;
-            strncpy(e->user, inputOrder->UserID, strlen(inputOrder->UserID));
-            qDebug() << "New park order incoming , " << inputOrder->OrderRef;
-            pEventCenter->PostParkOrderMessage(e);
-            return 1;
-        }
-        if((inputOrder->ParkedType >= XT_CC_LastPriceGreaterThanStopPrice && inputOrder->ParkedType <= XT_CC_AskPriceGreaterThanStopPrice)
-           || (inputOrder->ParkedType >= XT_CC_AskPriceGreaterEqualStopPrice && inputOrder->ParkedType <= XT_CC_BidPriceLesserEqualStopPrice))
-        {
-            string key(inputOrder->ParkedOrderID);
-            m_condOrderInfo[key] = *inputOrder;
-            if(inputOrder->ParkedStatus == XT_PAOS_NotSend)
-            {
-                m_parkTime[key] = QTime::QTime::currentTime();
-            }
+        string key(pField->ParkedOrderID);
+        m_mapOrders[key] = *pField;
 
-            QEventCenter* pEventCenter = GetEventCenter();
-            ParkOrderEvent* e = new ParkOrderEvent(CET_ConditionOrder);
-            e->usertype = 1;
-            e->subevent = ORDER_EVENT_UPDATE;
-            e->broker = inputOrder->BrokerID;
-            strncpy(e->user, inputOrder->UserID, strlen(inputOrder->UserID));
-            qDebug() << "New park order incoming , " << inputOrder->OrderRef;
-            pEventCenter->PostParkOrderMessage(e);
+        QEventCenter* pEventCenter = GetEventCenter();
+        ParkOrderEvent* e = new ParkOrderEvent(CET_ParkOrder);
+        e->usertype = 0;
+        e->subevent = ORDER_EVENT_UPDATE;
+        e->broker = m_user.broker;
+        strncpy(e->user, m_user.user, strlen(m_user.user));
 
-            return 1;
-        }
+        pEventCenter->PostParkOrderMessage(e);
+        return 1;
+
     }
     return 0;
 }
 
-std::vector<tagXTParkedOrderField> ParkCondOrderMgrByUser::getParkOrders()
+int         ParkCondOrderMgrByUser::getAllParkorder(vector<tagXTParkedOrderField>& arrOrder)
 {
-    vector<tagXTParkedOrderField> result;
-    for(auto p = m_parkOrderInfo.begin(); p!=m_parkOrderInfo.end();++p)
+    auto itb = m_mapOrders.begin();
+    while(itb != m_mapOrders.end() )
     {
-        result.push_back(p->second);
+        arrOrder.push_back(itb->second);
+        itb++;
     }
-    return result;
+
+    return arrOrder.size();
 }
 
-std::vector<tagXTParkedOrderField> ParkCondOrderMgrByUser::getCondOrders()
+int ParkCondOrderMgrByUser::sendRequest(unsigned char mainType, unsigned char childType, const char *inbuf, unsigned short insize)
 {
-    vector<tagXTParkedOrderField> result;
-    for(auto& ele:m_condOrderInfo)
-    {
-        result.push_back(ele.second);
-    }
-    return result;
-}
-
-std::unordered_map<string, QTime> &ParkCondOrderMgrByUser::getParkTime()
-{
-    return m_parkTime;
-}
-
-int ParkCondOrderMgrByUser::sendRequest(unsigned char mainType, unsigned char childType, const char *inbuf, unsigned short insize, int broker, const char *userId)
-{
-    char tempbuf[4096]={0};
+    char tempbuf[8192]={0};
     tagTDUserInfo* pUser = (tagTDUserInfo*)(tempbuf);
-    pUser->broker = broker;
-    if (userId)
-    {
-        strncpy(pUser->userid, userId, strlen(userId));
-    }
+    pUser->broker = m_user.broker;
+    strncpy(pUser->userid,  m_user.user, strlen(m_user.user));
 
     tagComm_FrameHead* pHead = (tagComm_FrameHead*)(tempbuf + sizeof(tagTDUserInfo));
     pHead->mainType = mainType;
@@ -223,15 +189,20 @@ int ParkCondOrderMgrByUser::sendRequest(unsigned char mainType, unsigned char ch
     }
 
     //加入队列
-    auto pProducer = GetInternalMsgSenderReceiver();
+    auto pProducer = GetKafkaUnit();
     if(pProducer)
     {
-        pProducer->sendMsg("420", tempbuf, sizeof(tagTDUserInfo) + sizeof(tagComm_FrameHead)  + pHead->size);
+        pProducer->sendMsg("422", tempbuf, sizeof(tagTDUserInfo) + sizeof(tagComm_FrameHead)  + pHead->size);
         return   sizeof(tagTDUserInfo) + sizeof(tagComm_FrameHead)  + pHead->size  ;
     }
     return  -1;
 }
 
+
+//...................................................................................................................................................................................
+//...................................................................................................................................................................................
+//...................................................................................................................................................................................
+//...................................................................................................................................................................................
 ParkedOrderMgr::ParkedOrderMgr()
 {
 
@@ -242,7 +213,7 @@ int ParkedOrderMgr::initUsers()
     auto pConf = GetConfigModule();
     if(pConf)
     {
-        vector<tagOneTradeUser> users;
+        vector<tagTTradeUserParam> users;
         auto size = pConf->GetAllTradeUser(users);
         if(size > 0)
         {
@@ -252,16 +223,15 @@ int ParkedOrderMgr::initUsers()
                 sprintf(key, "%d_%s", ele.broker, ele.user);
                 string strkey(key);
                 shared_ptr<ParkCondOrderMgrByUser> user =  make_shared<ParkCondOrderMgrByUser>(ele);
-                m_parkCondOrdersForUsers.insert({strkey, user});
+                m_mapUser2Ptr.insert({strkey, user});
 
-                tagXTQryParkedOrderField qry;
-                memset(&qry, 0, sizeof(tagXTQryParkedOrderField));
-                qry.ParkedType = XT_CC_ParkedOrder;
-                user->reqQryParkedOrder(&qry);
+                tagXTQryParkedOrderField    oField;
+                memset(&oField, 0, sizeof(tagXTQryParkedOrderField));
+                oField.BrokerID = ele.broker;
+                strcpy(oField.UserID, ele.user);
 
-                tagXTQryParkedOrderField qry1;
-                memset(&qry1, 0, sizeof(tagXTQryParkedOrderField));
-                user->reqQryParkedOrder(&qry1);
+                user->reqQryParkedOrder(&oField);
+
             }
         }
         return 1;
@@ -272,23 +242,23 @@ int ParkedOrderMgr::initUsers()
     }
 }
 
-shared_ptr<ParkCondOrderMgrByUser> ParkedOrderMgr::findMgrByUser(const string &strkey)
+ParkCondOrderMgrByUser* ParkedOrderMgr::findMgrByUser(const string &strkey)
 {
-    auto search = m_parkCondOrdersForUsers.find(strkey);
-    if(search == m_parkCondOrdersForUsers.end())
+    auto search = m_mapUser2Ptr.find(strkey);
+    if(search == m_mapUser2Ptr.end())
     {
         return nullptr;
     }
     else
     {
-        return m_parkCondOrdersForUsers[strkey];
+        return m_mapUser2Ptr[strkey].get();
     }
 }
 
 std::vector<std::shared_ptr<ParkCondOrderMgrByUser> > ParkedOrderMgr::getAllUsers()
 {
     vector<shared_ptr<ParkCondOrderMgrByUser>> result;
-    for(auto& ele:m_parkCondOrdersForUsers)
+    for(auto& ele:m_mapUser2Ptr)
     {
         result.push_back(ele.second);
     }

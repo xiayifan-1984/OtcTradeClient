@@ -10,22 +10,16 @@
 #include "eventcentermodule.h"
 #include <memory>
 #include <iostream>
-#include "XTCodec.h"
 
-
-extern std::shared_ptr<KBInputBox> tradeBox;
-extern QOrderMgr* getOrderMgrbyInstrument(tagXTInstrument&);
-extern int posDirectionSign(XTPosiDirectionType);
-extern QMdiArea * G_midArea;
 
 
 KBInputBox::KBInputBox(QWidget* parent /*= nullptr*/)
+    :QWidget (parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     memset(&m_oExCode, 0, sizeof(tagXTInstrument));
     memset(&m_oKBDetail, 0, sizeof(m_oKBDetail));
-    m_isAutoOpenClose = false;
-
+   
     initControls();
 
     configControls();
@@ -78,7 +72,6 @@ void            KBInputBox::initControls()
         h1->addWidget(_lblVol, 1);
 
         g1->addLayout(h1, 2, 0, 1, 2);
-       // g1->addWidget(_chkAutoKP, 2, 2);
 
     }
 
@@ -159,7 +152,7 @@ void    KBInputBox::configControls()
     _chkAny->setChecked(false);
 
     //[1]默认值
-    _editCode->setPlaceholderText(tr("IF1905"));
+    _editCode->setPlaceholderText(tr("IF1911"));
 
     //[2]spinVol默认值
     _spinVol->setMinimum(1);
@@ -341,7 +334,7 @@ void            KBInputBox::onCodePressReturn()
 
 void    KBInputBox::initAccount(const char* pProductID)
 {
-    vector<tagOneTradeUser>  arrUser;
+    vector<tagTTradeUserParam>  arrUser;
     GetConfigModule()->GetTradeUserBy(pProductID, arrUser);
     qDebug() << "KBInputBox initAccount number " << arrUser.size();
 
@@ -349,7 +342,7 @@ void    KBInputBox::initAccount(const char* pProductID)
     int nsize = arrUser.size();
     for(int i = 0; i< nsize; i++)
     {
-        tagOneTradeUser& o = arrUser[i];
+        tagTTradeUserParam& o = arrUser[i];
         QOrderMgr* p = GetTradeModule()->GetMgr(o.type, o.broker, o.user);
 
         QString strName;
@@ -376,7 +369,7 @@ void        KBInputBox::initCompleter()
     QStringList  arrCode;
     std::vector<QExchange*> arrExch;
     GetDataModule()->GetExchangeList(arrExch);
-    for(int i=0; i< arrExch.size(); i++)
+    for(size_t i=0; i< arrExch.size(); i++)
     {
         QExchange* p = arrExch[i];
         int nsize = p->GetCodeList(nullptr, 0);
@@ -423,16 +416,12 @@ void   KBInputBox::on_buyopenbtn_clicked_or_autolong()    //买入开仓
 
 void   KBInputBox::on_buyclosebtn_clicked()   //买入平仓
 {
-    qDebug()<<"buy close is clicked";
     auto vol = _spinVol->value();
-    auto pos = getShortOrLongPostionsBy(m_oExCode, false);
-    qDebug() << "close vol = " << vol << ", today short position = " << pos.second;
-    closePostion(XT_D_Buy, vol, pos.second);
+    closePostion(XT_D_Buy, vol);
 }
 
 void   KBInputBox::on_sellopenbtn_clicked_or_autoshort()   //卖出开仓
 {
-    qDebug()<<"sell open is clicked";
     int iret = inputOrderCommon(XT_D_Sell, XT_OF_Open, _spinVol->value());
     if(iret >0)
     {
@@ -442,11 +431,9 @@ void   KBInputBox::on_sellopenbtn_clicked_or_autoshort()   //卖出开仓
 
 void   KBInputBox::on_sellclosebtn_clicked()  //卖出平仓
 {
-    qDebug()<<"sell close is clicked";
-
     auto vol = _spinVol->value();
-    auto pos = getShortOrLongPostionsBy(m_oExCode, true);
-    closePostion(XT_D_Sell, vol, pos.second);
+  
+    closePostion(XT_D_Sell, vol);
 }
 
 int    KBInputBox::inputOrderCommon(char  direction, char  offsetflag, int volume)
@@ -550,7 +537,7 @@ void            KBInputBox::onOrderEvent(OrderEventArgs* e)
             //QString str = QString::fromLocal8Bit(e->reason);
             string t(e->reason);
             //QString str = e->reason;
-            QString str = XTCodec::AfGbk_ToQString(t);
+            QString str = XTCodec::AfUtf8_ToQString(t);
             strmsg.sprintf("下单[%s]失败, ", e->orderref);
             strmsg.append(str);
             QMessageBox::critical(nullptr, "下单失败", strmsg, QMessageBox::Yes);
@@ -558,94 +545,15 @@ void            KBInputBox::onOrderEvent(OrderEventArgs* e)
     }
 }
 
-void KBInputBox::onAutoChkClicked()
-{
-    if(_chkAutoKP->isChecked())
-    {
-        m_isAutoOpenClose = true;
-        qDebug() << "is Checked " << m_isAutoOpenClose;
-        _btnBuyOpen->setText("多");
-        _btnBuyClose->setDisabled(true);
-        _btnBuyClose->setText(tr(""));
-        _btnSellOpen->setText("空");
-        _btnSellClose->setDisabled(true);
-        _btnSellClose->setText(tr(""));
-    }
-    else
-    {
-        m_isAutoOpenClose = false;
-        qDebug() << "is Checked " << m_isAutoOpenClose;
-        _btnBuyOpen->setText(tr("买(开)"));
-        _btnBuyClose->setDisabled(false);
-        _btnBuyClose->setText(tr("买平"));
-        _btnSellOpen->setText(tr("卖(开)"));
-        _btnSellClose->setDisabled(false);
-        _btnSellClose->setText(tr("卖平"));
-    }
-}
-
-void KBInputBox::onCondChkClicked()
-{
-
-}
-
-void KBInputBox::onParkedChkClicked()
-{
-}
-
 void KBInputBox::closeEvent(QCloseEvent *event)
 {
-    if(tradeBox && this == tradeBox.get())
-    {
-        this->hide();
-        event->ignore();
-    }
-    else
-    {
-        event->accept();
-    }
+    event->accept();
 }
 
-std::pair<int, int> KBInputBox::getShortOrLongPostionsBy(tagXTInstrument &cur_Code, bool isLong)
+void KBInputBox::closePostion(char direction, int vol)
 {
-    int position  = 0;
-    int todayPostion = 0;
-    auto pMgr = getOrderMgrbyInstrument(cur_Code);
-    if(!pMgr) return {0,0};
-    vector<char> directionsVec;
-    if(isLong)
-    {
-        directionsVec.push_back(XT_PD_Long);
-    }
-    else
-    {
-        directionsVec.push_back(XT_PD_Short);
-    }
-    vector<char> hedgeflagsVec{XT_HF_Others, XT_HF_Speculation, XT_HF_Arbitrage, XT_HF_Hedge, XT_HF_Covered, XT_HF_MarketMaker};
-
-    //update position
-    for(auto dir:directionsVec)
-    {
-        for(auto hedgeflag:hedgeflagsVec)
-        {
-            tagXTInvestorPositionField temp;
-            if(1 == pMgr->GetOnePosition(cur_Code, dir, hedgeflag, temp) and temp.Position>=0)
-            {
-                position += temp.Position;
-                todayPostion += temp.TodayPosition;
-            }
-        }
-    }
-    qDebug() << "position = " << position << " todayPostion = " << todayPostion;
-    return {position, todayPostion};
-}
-
-void KBInputBox::closePostion(char direction, int vol, int todayPosition)
-{
-    int iret;
-    qDebug() << "close vol = " << vol << ", today position = " << todayPosition;
     XTOffsetFlagType offset = _chCloseTodayOrYes->isChecked() ? XT_OF_CloseToday:XT_OF_Close;
-    iret = inputOrderCommon(direction, offset, vol);
+    inputOrderCommon(direction, offset, vol);
 }
 
 

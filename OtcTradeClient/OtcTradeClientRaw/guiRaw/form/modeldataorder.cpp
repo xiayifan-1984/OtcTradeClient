@@ -2,25 +2,11 @@
 #include "trademodule.h"
 #include "datamodule.h"
 #include "XTCodec.h"
-#include "algoordermgr.h"
+#include "twapordermgr.h"
 #include "stool.h"
 #include <algorithm>
 
-//extern ParkOrderBox* getParkOrderBox();
-static void transOrder(tagXTInputOrderField& inputOrder, tagXTOrderField& outputOrder)
-{
-    memset(&outputOrder, 0, sizeof(tagXTOrderField));
-    outputOrder.BrokerID = inputOrder.BrokerID;
-    outputOrder.Direction = inputOrder.Direction;
-    outputOrder.LimitPrice = inputOrder.LimitPrice;
-    outputOrder.Volume = inputOrder.Volume;
-    strncpy(outputOrder.OffsetFlag, inputOrder.OffsetFlag, strlen(inputOrder.OffsetFlag));
-    strncpy(outputOrder.UserID, outputOrder.UserID, sizeof(outputOrder.UserID));
-    outputOrder.PriceType = inputOrder.PriceType;
-    memcpy(&outputOrder.ExCode, &inputOrder.ExCode, sizeof(inputOrder.ExCode));
-    strncpy(outputOrder.OrderRef, inputOrder.OrderRef, strlen(inputOrder.OrderRef));
 
-}
 //排序依据:
 //21:00 --24:00 第一梯队   00：00- 16:00 第二梯队
 //梯队小的靠前，如果梯队一致，则时间小的靠前   (之所以不用日期，是因为CZCE 的夜盘，使用的是第二天的日期)
@@ -72,39 +58,29 @@ void        ModelSingleOrder::setOrderMgr(QOrderMgr* p)
 
     release();
     m_pMgr = p;
-    if(m_showOrderType == ORDER_TO_SHOW::PARK_ORDER)
-    {
-    // reserve for parked order
-    }
-    else if(m_showOrderType == ORDER_TO_SHOW::ALGO_TWAP)
-    {
 
-    }
-    else
+    if(p)
     {
-        if(p)
+        int ncount = p->GetAllOrder(nullptr, 0);
+        if (ncount > 0)
         {
-            int ncount = p->GetAllOrder(nullptr, 0);
-            if (ncount > 0)
+            tagXTOrderField* pArr = new tagXTOrderField[ncount];
+            p->GetAllOrder(pArr, ncount);
+
+            for (int i = 0; i < ncount; i++)
             {
-                tagXTOrderField* pArr = new tagXTOrderField[ncount];
-                p->GetAllOrder(pArr, ncount);
-
-                for (int i = 0; i < ncount; i++)
-                {
-                    //[001]加入
-                    m_arrOrderTable.push_back(pArr[i]);
-                }
-
-                //[004]排序
-                std::sort(m_arrOrderTable.begin(), m_arrOrderTable.end(), OrderLower);
-                if(m_showOrderType == ORDER_TO_SHOW::ACCEPTED_ORDER)
-                {
-                    m_arrOrderTable.erase(remove_if(m_arrOrderTable.begin(), m_arrOrderTable.end(), [](tagXTOrderField& p)
-                    {return p.OrderStatus != XT_OST_Accepted;}), m_arrOrderTable.end());
-                }
-                delete[] pArr;
+                //[001]加入
+                m_arrOrderTable.push_back(pArr[i]);
             }
+
+            //[004]排序
+            std::sort(m_arrOrderTable.begin(), m_arrOrderTable.end(), OrderLower);
+            if(m_showOrderType == ORDER_TO_SHOW::ACCEPTED_ORDER)
+            {
+                m_arrOrderTable.erase(remove_if(m_arrOrderTable.begin(), m_arrOrderTable.end(), [](tagXTOrderField& p)
+                {return p.OrderStatus != XT_OST_Accepted;}), m_arrOrderTable.end());
+            }
+            delete[] pArr;
         }
     }
 
@@ -115,55 +91,6 @@ void        ModelSingleOrder::setOrderMgr(QOrderMgr* p)
 void ModelSingleOrder::setOrderToShow(ORDER_TO_SHOW toShow)
 {
     m_showOrderType = toShow;
-}
-
-void ModelSingleOrder::drawAlgoOrders(const string &algoRef, QOrderMgr *p)
-{
-    beginResetModel();
-
-    release();
-
-    if(p)
-    {
-        auto pAlgoCtx = GetAlgoOrderMgr();
-        int usertype=0;
-        int broker =0;
-        char szuser[32]={0};
-
-        p->WhoIs(usertype, broker, szuser);
-        auto algoUser = stool::genUserId(broker, szuser);
-        auto user = pAlgoCtx->findOrderMgr(algoUser);
-        if(!user) return;
-
-        const auto& algoRef2Orders = user->getAlgoRef2OrderRefMap();
-        auto search = algoRef2Orders.find(algoRef);
-        if(search == algoRef2Orders.end()) return;
-
-        const auto& ordersRecord = search->second;
-
-        int ncount = p->GetAllOrder(nullptr, 0);
-        if (ncount > 0)
-        {
-            tagXTOrderField* pArr = new tagXTOrderField[ncount];
-            p->GetAllOrder(pArr, ncount);
-
-            for (int i = 0; i < ncount; i++)
-            {
-                //[001]加入
-                string orderRef = pArr[i].OrderRef;
-                auto search = find_if(ordersRecord.begin(), ordersRecord.end(), [&](auto& ref){
-                    return ref == orderRef;
-                });
-                if(search == ordersRecord.end()) continue;
-                m_arrOrderTable.push_back(pArr[i]);
-            }
-
-            //[004]排序
-            std::sort(m_arrOrderTable.begin(), m_arrOrderTable.end(), OrderLower);
-            delete[] pArr;
-        }
-    }
-    endResetModel();
 }
 
 int         ModelSingleOrder::rowCount(const QModelIndex &parent) const
@@ -192,22 +119,22 @@ QVariant    ModelSingleOrder::headerData(int section, Qt::Orientation orientatio
         QString str = "";
         switch (section)
         {
-        case 0:str = "OrderSysID"; break;
-        case 1:str = "Code"; break;
-        case 2:str = "Direction"; break;
-        case 3:str = "Offset"; break;
-        case 4:str = "Status";break;
+        case 0:str = "柜台编号"; break;
+        case 1:str = "合约"; break;
+        case 2:str = "方向"; break;
+        case 3:str = "开平"; break;
+        case 4:str = "状态";break;
 
-        case 5:str = "Price";break;
-        case 6:str = "oriVolume";break;
-        case 7:str = "UnTraded";break;
-        case 8:str = "TradedVol";break;
-        case 9:str="msg";break;
-        case 10:str="InsertTime";break;
-        case 11:str="UpdateTime";break;
-        case 12:str="OrderRef";break;
-        case 13:str="Hedge";break;
-        case 14:str="Exchange";break;
+        case 5:str = "价格";break;
+        case 6:str = "数量";break;
+        case 7:str = "剩余量";break;
+        case 8:str = "已成交";break;
+        case 9:str = "消息";break;
+        case 10:str="下单时间";break;
+        case 11:str="更新时间";break;
+        case 12:str="本方编号";break;
+        case 13:str="套保标志";break;
+        case 14:str="交易所";break;
         }
         return str;
     }

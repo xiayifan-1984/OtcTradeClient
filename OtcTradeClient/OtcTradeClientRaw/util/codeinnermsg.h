@@ -3,17 +3,10 @@
 #include <QtCore>
 #include <QString>
 #include <string>
-#include <XTTradestruct.h>
+#include "XTTradestruct.h"
+#include "XTTwapStruct.h"
+#include "XTTParkedStruct.h"
 
-/////////////////////////////////////////////////////////////////////////
-///XTParkedOrderStatusType是一个预埋单/条件单状态类型
-/////////////////////////////////////////////////////////////////////////
-///未发送
-#define XT_PAOS_NotSend     '1'
-///已发送
-#define XT_PAOS_Send         '2'
-///已删除
-#define XT_PAOS_Deleted     '3'
 
 inline QString parkOrderStatusToStr(char s)
 {
@@ -32,44 +25,6 @@ inline QString parkOrderStatusToStr(char s)
     }
     return ret;
 }
-
-/////////////////////////////////////////////////////////////////////////
-///XTContingentConditionType是一个触发条件类型
-/////////////////////////////////////////////////////////////////////////
-///立即
-#define XT_CC_Immediately '1'
-///止损
-#define XT_CC_Touch '2'
-///止赢
-#define XT_CC_TouchProfit '3'
-///预埋单
-#define XT_CC_ParkedOrder '4'
-///最新价大于条件价
-#define XT_CC_LastPriceGreaterThanStopPrice '5'
-///最新价大于等于条件价
-#define XT_CC_LastPriceGreaterEqualStopPrice '6'
-///最新价小于条件价
-#define XT_CC_LastPriceLesserThanStopPrice '7'
-///最新价小于等于条件价
-#define XT_CC_LastPriceLesserEqualStopPrice '8'
-///卖一价大于条件价
-#define XT_CC_AskPriceGreaterThanStopPrice '9'
-///卖一价大于等于条件价
-#define XT_CC_AskPriceGreaterEqualStopPrice 'A'
-///卖一价小于条件价
-#define XT_CC_AskPriceLesserThanStopPrice 'B'
-///卖一价小于等于条件价
-#define XT_CC_AskPriceLesserEqualStopPrice 'C'
-///买一价大于条件价
-#define XT_CC_BidPriceGreaterThanStopPrice 'D'
-///买一价大于等于条件价
-#define XT_CC_BidPriceGreaterEqualStopPrice 'E'
-///买一价小于条件价
-#define XT_CC_BidPriceLesserThanStopPrice 'F'
-///买一价小于等于条件价
-#define XT_CC_BidPriceLesserEqualStopPrice 'H'
-
-typedef char XTContingentConditionType;
 
 inline QString condTriggerToStr(XTContingentConditionType trigger)
 {
@@ -93,30 +48,9 @@ inline QString condTriggerToStr(XTContingentConditionType trigger)
     return  ret;
 }
 
-/////////////////////////////////////////////////////////////////////////
-///XTAlgoOrderType是算法订单类型
-/////////////////////////////////////////////////////////////////////////
-
-#define XT_ALGO_TWAP '1'
-
-#define XT_ALGO_VWAP '2'
-
-#define XT_ALGO_INVALID '3'
-typedef char  XTAlgoOrderType;
-
-#define XT_ALGO_Accepted '1'
-
-#define XT_AlGO_Executing '2'
-
-#define XT_AlGO_End '3'
-
-#define XT_AlGO_Cancelled '4'
-
-typedef char XTAlgoOrderStatus;
-
-#define NUM_ORDER_REF 100
 
 #pragma pack(1)
+
 typedef struct
 {
     int					broker;
@@ -132,84 +66,14 @@ typedef struct
 }tagComm_FrameHead, MAIN_FRAME_HEAD;
 
 #pragma pack()
-struct tagXTParkedOrderField : public tagXTInputOrderField
-{
-    char        ParkedType; //XTContingentConditionType
-    char_13     ParkedOrderID;
-    char        ParkedStatus; //XTParkedOrderStatusType
-    double      StopPrice;
-};
 
-typedef struct
-{
-    char            ParkedType; //XTContingentConditionType
-    char_13         ParkedOrderID;
-    char            ActionFlag;
-
-    int             BrokerID;
-    char_16         UserID;
-    tagXTInstrument     ExCode;
-}tagXTParkedOrderActionField;
-
-typedef struct
-{
-    int             BrokerID;
-    char_16         UserID;
-
-    tagXTInstrument ExCode;
-    char            ParkedType;
-    char_13         ParkedOrderID;
-}tagXTQryParkedOrderField;
-
-#pragma pack(1)
-typedef struct
-{
-    char        AlgoOrderType;
-    char_13     AlgoOrderID;
-    char        AlgoOrderStatus;
-    qint64        StartTime;
-    qint64        EndTime;
-
-    int             BrokerID;
-    char_16         UserID;
-    tagXTInstrument     ExCode;
-
-    char            Direction;
-    char            Offset;
-    double          Volumn;
-}tagXTAlgoOrderField;
-
-struct tagXTQryAlgoOrderField:tagXTAlgoOrderField
-{
-    int             CurOrderNum;
-    char_13         CurOrderRef[NUM_ORDER_REF];
-};
-
-typedef struct
-{
-    char            AlgoOrderType;
-    char_13         AlgoOrderID;
-    char            ActionFlag;
-
-    int             BrokerID;
-    char_16         UserID;
-    tagXTInstrument     ExCode;
-}tagXTAlgoOrderActionField;
-
-typedef struct
-{
-    char            AlgoOrderType;
-    char_13         AlgoOrderID;
-    char_13         InsertOrderRef;
-
-    int             BrokerID;
-    char_16         UserID;
-    tagXTInstrument     ExCode;
-} tagXTAlgoOrderInsertRtnField;
-#pragma pack()
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace Codeinnermsg
 {
-    std::string otcOptInquiryReq(const QString&, int, const QString&);
+    std::string     otcOptInquiryReq(const QString&, int, const QString&);
 }
+
 #endif // INNERMSGCODE_H

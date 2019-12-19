@@ -41,38 +41,36 @@
 #include <QtWidgets>
 
 #include "mainwindow.h"
-#include "debugquote.h"
+#include "sdiwindow.h"
 
+#include "XTCodec.h"
+#include "trademodule.h"
+#include "configmodule.h"
+
+#include "debugquote.h"
 #include "selectcommodity.h"
 #include "selectmaincontract.h"
-#include "kbinputbox.h"
+
 #include "datanametable.h"
 #include "datastaticdata.h"
 #include "dataorder.h"
-#include "datatrade.h"
-#include "dataposition.h"
-#include "viewRiskAvoid.h"
-#include "viewInquiryBox.h"
-#include "internalmessaging.h"
-#include <utility>
-#include <thread>
+#include "mditradedata.h"
+#include "mdipositiondata.h"
+
+#include "parkorderdata.h"
+#include "twaporderdata.h"
+
+#include "otcRiskAvoid.h"
+#include "otcInquiryBox.h"
 #include "otcriskcalc.h"
-#include "parkedordertab.h"
-#include "parkcondorderinput.h"
-#include "dataparkcondorder.h"
-#include "algoinputbox.h"
-#include "algoordertab.h"
-#include "dataalgoorder.h"
+#include "kbinputbox.h"
+#include "SmartParkBox.h"
+#include "twapinputbox.h"
 
-extern shared_ptr<KBInputBox> tradeBox;
-extern InternalSenderReceiver* GetInternalMsgSenderReceiver();
 
-QMdiArea * G_midArea = nullptr;
-
-MainWindow::MainWindow()
+CMainWindow::CMainWindow()
     : mdiArea(new QMdiArea)
 {
-    G_midArea = mdiArea;
     mdiArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     mdiArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setCentralWidget(mdiArea);
@@ -86,10 +84,9 @@ MainWindow::MainWindow()
 
     setAttribute(Qt::WA_DeleteOnClose);
 
-    tradeBox = make_shared<KBInputBox>();
 }
 
-void MainWindow::closeEvent(QCloseEvent *event)
+void CMainWindow::closeEvent(QCloseEvent *event)
 {
     mdiArea->closeAllSubWindows();
     if (mdiArea->currentSubWindow())
@@ -100,109 +97,124 @@ void MainWindow::closeEvent(QCloseEvent *event)
     {
         //writeSettings();
         event->accept();
-        if(tradeBox)
-            tradeBox->close();
     }
 }
 
-void MainWindow::about()
+void CMainWindow::about()
 {
    QMessageBox::about(this, tr("About OtcTradeClient"),
             tr("The <b>OtcTradeClient</b> demonstrates a otc system, and how to trade and analysis future and option using Qt. "
              ));
 }
 
-void MainWindow::createActions()
+void CMainWindow::createActions()
 {
     QMenu *sysMenu = menuBar()->addMenu(tr("&System"));
     {
-        QAction* mdiContainer = sysMenu->addAction(tr("MDIContainer"), this , &MainWindow::ShowMDIContainer );
-        mdiContainer->setStatusTip(tr("Show a MDI Container"));
+        QAction* mdiContainer = sysMenu->addAction(tr("MDI Frame"), this , &CMainWindow::ShowMDIFrame );
+        mdiContainer->setStatusTip(tr("显示一个MDI框架"));
         mdiContainer->setIcon(QIcon(":/image/400.bmp"));
 
-        QAction* dockContainer = sysMenu->addAction(tr("DockContainer"), this , &MainWindow::ShowDockContainer );
-        dockContainer->setStatusTip(tr("Show a Split Container"));
-        dockContainer->setIcon(QIcon(":/image/406.bmp"));
+        QMenu* psdi = sysMenu->addMenu(QIcon(":/image/406.bmp"), tr("SDI Frame") );
+        std::vector<tagTTradeUserParam> arrUser;
+        GetConfigModule()->GetAllTradeUser(arrUser);
+        for(size_t i=0; i< arrUser.size(); i++ )
+        {
+            tagTTradeUserParam& o = arrUser[i];
 
-        QAction* new1= sysMenu->addAction(tr("Configuration"), this, &MainWindow::ShowConfiguration);
-        new1->setStatusTip(tr("Show a new Configuration"));
+            QOrderMgr* p = GetTradeModule()->GetMgr(o.type, o.broker, o.user);
+
+            QString strName;
+            std::string strmsg = o.aliasuser;
+            strName = XTCodec::AfGbk_ToQString(strmsg);
+
+            QVariant v = QVariant::fromValue((void *)p);
+
+            QAction* psub = new QAction(strName, psdi);
+            psub->setData(v);
+            psdi->addAction(psub);
+
+        }
+        connect(psdi, SIGNAL(triggered(QAction*)), this, SLOT(ShowSDIUser(QAction*)) );
+
+        QAction* new1= sysMenu->addAction(tr("Configuration"), this, &CMainWindow::ShowConfiguration);
+        new1->setStatusTip(tr("显示系统设置"));
         new1->setIcon(QIcon(":/image/001.bmp"));
         sysMenu->addSeparator();
 
-        QAction* new2= sysMenu->addAction(tr("Close"), this, &MainWindow::ShowExit );
+        QAction* new2= sysMenu->addAction(tr("Close"), this, &CMainWindow::ShowExit );
         new2->setIcon(QIcon(":/image/exit.bmp"));
-        new2->setStatusTip(tr("Close current Window"));
+        new2->setStatusTip(tr("关闭"));
     }
 
-    QMenu *analysisMenu = menuBar()->addMenu(tr("&Analysis"));
+    menuBar()->addMenu(tr("&Analysis"));
     {
+        //QMenu *analysisMenu =
         //@@@@@@@@@@@@@
     }
 
     QMenu *tradeMenu = menuBar()->addMenu(tr("View"));
     {
-        QAction* new1 = tradeMenu->addAction(tr("RiskAvoid"), this, &MainWindow::showRiskAvoid);
-        new1->setStatusTip(tr("Show a new RiskAvoid window"));
+        QAction* new1 = tradeMenu->addAction(tr("OtcRiskAvoid"), this, &CMainWindow::showOtcRiskAvoid);
+        new1->setStatusTip(tr("显示OTC避险画面"));
 
-        QAction* new2 = tradeMenu->addAction(tr("SimpleOrderBox"), this, &MainWindow::showSimpleOrderBox);
-        new2->setStatusTip(tr("Show a new OrderBox window"));
+        QAction* new3 = tradeMenu->addAction(tr("OtcInquiry"), this, &CMainWindow::showOtcInquiry);
+        new3->setStatusTip(tr("显示OTC持仓"));
 
-        QAction* new3 = tradeMenu->addAction(tr("Inquiry"), this, &MainWindow::showInquiry);
-        new3->setStatusTip(tr("Show a new Inquiry window"));
+        QAction* new4 = tradeMenu->addAction(tr("OtcRiskCalculation"), this, &CMainWindow::showOtcRiskCalculation);
+        new4->setStatusTip(tr("显示OTC计算器"));
 
-        QAction* new4 = tradeMenu->addAction(tr("OtcRiskCalculation"), this, &MainWindow::showRiskCalculationBox);
-        new4->setStatusTip(tr("Show a new Inquiry window"));
+        QAction* new2 = tradeMenu->addAction(tr("KBInputBox"), this, &CMainWindow::showKBInputBox);
+        new2->setStatusTip(tr("显示下单板"));
 
-        QAction* new5 = tradeMenu->addAction(tr("CustomizedOrderBox"), this, &MainWindow::showParkedCondOrderBox);
-        new5->setStatusTip(tr("show park and cond input box"));
+        QAction* new5 = tradeMenu->addAction(tr("ParkOrderInputBox"), this, &CMainWindow::showParkOrderInputBox);
+        new5->setStatusTip(tr("显示条件单下单板"));
 
-        QAction* new6 = tradeMenu->addAction(tr("AlgoInputBox"), this, &MainWindow::showAlgoInputBox);
-        new5->setStatusTip(tr("show algo input box"));
-        //@@@@@@@@@@@@@
+        QAction* new6 = tradeMenu->addAction(tr("TwapInputBox"), this, &CMainWindow::showTwapInputBox);
+        new6->setStatusTip(tr("显示Twap下单板"));
+
     }
 
     QMenu *dataMenu = menuBar()->addMenu(tr("&Data"));
     {
-        QAction* newmdi = dataMenu->addAction(tr("NameTable"), this, &MainWindow::showDataNameTable);
-        newmdi->setStatusTip(tr("Show a new NameTable window"));
+        QAction* newmdi = dataMenu->addAction(tr("NameTable"), this, &CMainWindow::showDataNameTable);
+        newmdi->setStatusTip(tr("显示名称代码表"));
 
-        QAction* newmdi2 = dataMenu->addAction(tr("StaticData"), this, &MainWindow::showDataStaticData);
-        newmdi2->setStatusTip(tr("Show a new StaticData window"));
+        QAction* newmdi2 = dataMenu->addAction(tr("StaticData"), this, &CMainWindow::showDataStaticData);
+        newmdi2->setStatusTip(tr("显示静态数据"));
 
-        QAction* newmdi3 = dataMenu->addAction(tr("OrderRecord"), this, &MainWindow::showDataOrderRecord);
-        newmdi3->setStatusTip(tr("Show a new Order window"));
+        QAction* newmdi3 = dataMenu->addAction(tr("OrderRecord"), this, &CMainWindow::showDataOrderRecord);
+        newmdi3->setStatusTip(tr("显示委托报表"));
 
-        QAction* newmdi4 = dataMenu->addAction(tr("TradeRecord"), this, &MainWindow::showDataTradeRecord);
-        newmdi4->setStatusTip(tr("Show a new Trade window"));
+        QAction* newmdi4 = dataMenu->addAction(tr("TradeRecord"), this, &CMainWindow::showDataTradeRecord);
+        newmdi4->setStatusTip(tr("显示成交报表"));
 
-        QAction* newmdi5 = dataMenu->addAction(tr("PositionRecord"), this, &MainWindow::showDataPositionRecord);
-        newmdi5->setStatusTip(tr("Show a new Position window"));
+        QAction* newmdi5 = dataMenu->addAction(tr("PositionRecord"), this, &CMainWindow::showDataPositionRecord);
+        newmdi5->setStatusTip(tr("显示持仓报表"));
 
-        QAction* newmdi6 = dataMenu->addAction(tr("ParkAndConditionOrderTab"), this, &MainWindow::showParkCondOrderTab);
-        newmdi6->setStatusTip(tr("Show a new Parked and conditon order window"));
+        QAction* newmdi6 = dataMenu->addAction(tr("ParkOrderTab"), this, &CMainWindow::showParkOrderData);
+        newmdi6->setStatusTip(tr("显示条件/预埋报表"));
 
-        QAction* newmdi7 = dataMenu->addAction(tr("AlgoOrderTab"), this, &MainWindow::showAlgoOrderTab);
-        newmdi7->setStatusTip(tr("Show a new AlgoOrder window"));
+        QAction* newmdi7 = dataMenu->addAction(tr("TwapOrderTab"), this, &CMainWindow::showTwapOrderData);
+        newmdi7->setStatusTip(tr("显示Twap报表"));
     }
 
     QMenu* debugMenu = menuBar()->addMenu(tr("Debug"));
     {
-        QAction* newmdi3 = debugMenu->addAction(tr("Quote"), this, &MainWindow::showDebugQuote);
-        newmdi3->setStatusTip(tr("Show a new Quote window"));
+        QAction* newmdi3 = debugMenu->addAction(tr("Quote"), this, &CMainWindow::showDebugQuote);
+        newmdi3->setStatusTip(tr("显示行情报表"));
 
-        QAction* newmdi7 = debugMenu->addAction(tr("Select MainContract"), this, &MainWindow::showSelectMainContract);
-        newmdi7->setStatusTip(tr("Show a new Select MainContract window"));
+        QAction* newmdi7 = debugMenu->addAction(tr("Select MainContract"), this, &CMainWindow::showSelectMainContract);
+        newmdi7->setStatusTip(tr("显示主力合约对话框"));
 
-        QAction* newmdi8 = debugMenu->addAction(tr("Select Commodity"), this, &MainWindow::showSelectCommodity);
-        newmdi8->setStatusTip(tr("Show a new Select window"));
+        QAction* newmdi8 = debugMenu->addAction(tr("Select Commodity"), this, &CMainWindow::showSelectCommodity);
+        newmdi8->setStatusTip(tr("显示选择合约对话框"));
 
-        QAction* newmdi9 = debugMenu->addAction(tr("KBInputBox"), this, &MainWindow::showKBInputBox);
-        newmdi9->setStatusTip(tr("Show a new KBInputbox window"));
     }
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     {
-        QAction *aboutAct = helpMenu->addAction(tr("&About"), this, &MainWindow::about);
+        QAction *aboutAct = helpMenu->addAction(tr("&About"), this, &CMainWindow::about);
         aboutAct->setStatusTip(tr("Show the application's About box"));
 
         QAction *aboutQtAct = helpMenu->addAction(tr("About &Qt"), qApp, &QApplication::aboutQt);
@@ -211,16 +223,19 @@ void MainWindow::createActions()
 
 }
 
-void MainWindow::createStatusbar()
+void CMainWindow::createStatusbar()
 {
     statusBar()->showMessage(tr("Ready"));
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//[Data]菜单
+
 //显示 名称代码表
-void    MainWindow::showDataNameTable()
+void    CMainWindow::showDataNameTable()
 {
     DataNameTable* child = new DataNameTable();
-    QMdiSubWindow* sub = mdiArea->addSubWindow(child);
+    mdiArea->addSubWindow(child);
 
     child->setWindowTitle(tr("Name Table"));
     child->show();
@@ -228,20 +243,20 @@ void    MainWindow::showDataNameTable()
 }
 
 //显示 静态数据
-void    MainWindow::showDataStaticData()
+void    CMainWindow::showDataStaticData()
 {
     DataStaticData* child = new DataStaticData();
-    QMdiSubWindow* sub = mdiArea->addSubWindow(child);
+    mdiArea->addSubWindow(child);
 
     child->setWindowTitle(tr("Static Data"));
     child->show();
 }
 
 //显示 委托单记录
-void    MainWindow::showDataOrderRecord()
+void    CMainWindow::showDataOrderRecord()
 {
     MultiOrderWidget* child = new MultiOrderWidget();
-    QMdiSubWindow* sub = mdiArea->addSubWindow(child);
+    mdiArea->addSubWindow(child);
 
     child->setWindowTitle(tr("Order Record"));
     child->show();
@@ -249,10 +264,10 @@ void    MainWindow::showDataOrderRecord()
 }
 
 //显示 成交记录
-void     MainWindow::showDataTradeRecord()
+void     CMainWindow::showDataTradeRecord()
 {
-    MultiTradeWidget* child = new MultiTradeWidget();
-    QMdiSubWindow* sub = mdiArea->addSubWindow(child);
+    CMDITradeData* child = new CMDITradeData();
+    mdiArea->addSubWindow(child);
 
     child->setWindowTitle(tr("Trade Record"));
     child->show();
@@ -260,27 +275,38 @@ void     MainWindow::showDataTradeRecord()
 }
 
 //显示 交易持仓
-void     MainWindow::showDataPositionRecord()
+void     CMainWindow::showDataPositionRecord()
 {
-    MultiPositionWidget* child = new MultiPositionWidget();
-    QMdiSubWindow* sub = mdiArea->addSubWindow(child);
+    CMDIPositionData* child = new CMDIPositionData();
+    mdiArea->addSubWindow(child);
 
     child->setWindowTitle(tr("Position Record"));
     child->show();
     mdiArea->activeSubWindow()->resize(800,400);
 }
 
-//显示 行情
-void    MainWindow::showDebugQuote()
+void CMainWindow::showParkOrderData()
 {
-    DebugQuote* child = new DebugQuote();
-    QMdiSubWindow* sub = mdiArea->addSubWindow(child);
+    auto child = new CParkOrderData();
+    mdiArea->addSubWindow(child);
 
-    child->setWindowTitle(tr("Show Quote"));
+    child->setWindowTitle(tr("park and condition"));
+    child->show();
+    mdiArea->activeSubWindow()->resize(1200,200);
+}
+
+void CMainWindow::showTwapOrderData()
+{
+    auto child = new CTwapOrderData();
+    mdiArea->addSubWindow(child);
+    child->setWindowTitle(tr("TwapOrderData"));
     child->show();
 }
 
-void     MainWindow::showRiskAvoid()
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//[view]菜单
+
+void     CMainWindow::showOtcRiskAvoid()
 {
     ViewRiskAvoid* child = new ViewRiskAvoid();
     QMdiSubWindow* sub = mdiArea->addSubWindow(child);
@@ -293,50 +319,44 @@ void     MainWindow::showRiskAvoid()
     mdiArea->activeSubWindow()->resize(800,200);
 }
 
-void     MainWindow::showSimpleOrderBox()
-{
-    showKBInputBox();
-}
-
-void    MainWindow::showInquiry()
+void    CMainWindow::showOtcInquiry()
 {
     //询价与成交
     ViewInquiryBox* child = new ViewInquiryBox();
-    QMdiSubWindow* sub = mdiArea->addSubWindow(child);
+    mdiArea->addSubWindow(child);
 
     child->setWindowTitle(tr("Inquiry Box"));
     child->show();
     mdiArea->activeSubWindow()->resize(1600,200);
 }
 
-void MainWindow::showParkedCondOrderBox()
+void    CMainWindow::showKBInputBox()
 {
-    ParkCondOrderInput* child = new ParkCondOrderInput();
-    QMdiSubWindow* sub = mdiArea->addSubWindow(child);
+    KBInputBox* child = new KBInputBox();
+    mdiArea->addSubWindow(child);
+
+    child->setWindowTitle(tr("KBInputbox"));
+    child->show();
+}
+
+void CMainWindow::showParkOrderInputBox()
+{
+    CSmartParkBox* child = new CSmartParkBox();
+    mdiArea->addSubWindow(child);
     child->setWindowTitle(tr("ParkAndConditionBox"));
     child->show();
     mdiArea->activeSubWindow()->resize(480,320);
 }
 
-void MainWindow::showParkCondOrderTab()
+void CMainWindow::showTwapInputBox()
 {
-    auto child = new DataParkCondOrder();
-    QMdiSubWindow* sub = mdiArea->addSubWindow(child);
-
-    child->setWindowTitle(tr("park and condition"));
-    child->show();
-    mdiArea->activeSubWindow()->resize(1200,200);
-}
-
-void MainWindow::showAlgoInputBox()
-{
-    auto child = new AlgoInputBox();
+    auto child = new CTwapInputBox();
     mdiArea->addSubWindow(child);
-    child->setWindowTitle(tr("AlgoInput"));
+    child->setWindowTitle(tr("TwapInput"));
     child->show();
 }
 
-void MainWindow::showRiskCalculationBox()
+void CMainWindow::showOtcRiskCalculation()
 {
     OtcRiskCalc* child = new OtcRiskCalc();
     mdiArea->addSubWindow(child);
@@ -345,38 +365,18 @@ void MainWindow::showRiskCalculationBox()
     mdiArea->activeSubWindow()->resize(800,200);
 }
 
-void MainWindow::showAlgoOrderTab()
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//[Debug]菜单
+void    CMainWindow::showDebugQuote()
 {
-    auto child = new DataAlgoOrder();
+    DebugQuote* child = new DebugQuote();
     mdiArea->addSubWindow(child);
-    child->setWindowTitle(tr("AlgoOrderTab"));
+
+    child->setWindowTitle(tr("Show Quote"));
     child->show();
 }
 
-void      MainWindow::ShowMDIContainer()
-{
-    MainWindow* pnew = new MainWindow();
-    pnew->show();
-
-}
-
-void      MainWindow::ShowDockContainer()
-{
-    //@@@@@@@@@@
-
-}
-
-void      MainWindow::ShowConfiguration()
-{
-    //@@@@@@@@
-}
-
-void      MainWindow::ShowExit()
-{
-    close();
-}
-
-void      MainWindow::showSelectCommodity()
+void      CMainWindow::showSelectCommodity()
 {
     SelectCommodity  dlg;
 
@@ -390,7 +390,7 @@ void      MainWindow::showSelectCommodity()
 
 }
 
-void    MainWindow::showSelectMainContract()
+void    CMainWindow::showSelectMainContract()
 {
     SelectMainContract dlg;
     int rec = dlg.exec();
@@ -402,12 +402,31 @@ void    MainWindow::showSelectMainContract()
     }
 }
 
-void    MainWindow::showKBInputBox()
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//[System] 菜单
+void      CMainWindow::ShowMDIFrame()
 {
-    KBInputBox* child = new KBInputBox();
-    QMdiSubWindow* sub = mdiArea->addSubWindow(child);
-    int tid = GetCurrentThreadId();
-    qDebug()<<"main kinput id " << tid;
-    child->setWindowTitle(tr("KBInputbox"));
-    child->show();
+    CMainWindow* pnew = new CMainWindow();
+    pnew->show();
+
 }
+
+void CMainWindow::ShowSDIUser(QAction* pAction)
+{
+    CSDIWindow* pnew = new CSDIWindow();
+    pnew->setSDIUser( pAction->data(), pAction->text() );
+    pnew->initControls();
+    pnew->showMaximized();
+}
+
+void      CMainWindow::ShowConfiguration()
+{
+    //@@@@@@@@
+}
+
+void      CMainWindow::ShowExit()
+{
+    close();
+}
+
+

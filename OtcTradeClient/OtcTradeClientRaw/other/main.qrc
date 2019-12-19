@@ -25,5 +25,6 @@
 	<file>image/exit.bmp</file>
 	<file>image/001.bmp</file>
 	<file>image/dotrade.png</file>
+	<file>image/login.png</file>
     </qresource>
 </RCC>

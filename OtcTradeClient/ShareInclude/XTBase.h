@@ -73,7 +73,7 @@ typedef struct
 
 #define		d4_5_				0.500001					//四舍五入校正值 0.5是为了四舍五入，0.000001是为了校正浮点数
 #define		SHOPT_MULTI			(10000.0)					//上海期权的价格放大倍数
-#define		SHOPT_NPRICE(d)                 (int)(d * 10000.0 + d4_5_)		//把执行价，最新价等放大10000倍取整
+#define		SHOPT_NPRICE(d)     (int)(d * 10000.0 + d4_5_)		//把执行价，最新价等放大10000倍取整
 
 
 #pragma pack()

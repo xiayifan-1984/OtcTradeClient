@@ -4,11 +4,9 @@
 #include "XTBase.h"
 #include <QtWidgets>
 #include <vector>
-#include "ordermgrimpl.h"
-#include "kbinputbox.h"
 #include <memory>
 #include <utility>
-#include "./optpricingapplication/futureoptdata.h"
+#include "otcoptionmodule.h"
 
 class OtcRiskCalc : public QWidget
 {
@@ -32,7 +30,6 @@ protected:
 
     void                updateRow001(int, double);
     void                updateRow002_003_004_005(double);
-    QOrderMgr*          getOrderMgrbyInstrument();
 
 
 protected slots:

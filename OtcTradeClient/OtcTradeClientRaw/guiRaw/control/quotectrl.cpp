@@ -8,6 +8,7 @@
 #define     QUOTE_ITEM_HEIGHT       (20)
 
 CQuoteCtrl::CQuoteCtrl(QWidget* parent /* = nullptr */)
+    :QWidget (parent)
 {
     memset(&m_oCurInstrument, 0, sizeof(m_oCurInstrument) );
     memset(&m_oQuoteData, 0, sizeof(m_oQuoteData) );
@@ -131,7 +132,7 @@ void        CQuoteCtrl::  ontimer()
 }
 
 //==========================================================================================================================================================================================================
-void    CQuoteCtrl::paintEvent(QPaintEvent *event)
+void    CQuoteCtrl::paintEvent(QPaintEvent*  )
 {
     QPainter painter(this);
 
@@ -455,5 +456,5 @@ int         CQuoteCtrl::checkPos(const QPoint& curPos)
 
 QSize   CQuoteCtrl::minimumSizeHint() const
 {
-    return QSize( 116 , 236);
+    return QSize( 140 , 236);
 }
