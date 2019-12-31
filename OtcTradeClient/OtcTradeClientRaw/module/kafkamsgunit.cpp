@@ -49,7 +49,7 @@ public:
 
 int     fnMsgHandler(const char* topic, int partition, long long offset, int buflen, const char* buf)
 {
-    qDebug() << "topic " << topic << ", partition " << partition;
+    qDebug() << "topic :" << topic << ",partition :" << partition;
     if(strcmp(topic, "411") == 0)
     {
         otcOptPositionRsp rsp;

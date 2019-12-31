@@ -157,14 +157,12 @@ void TwapOrderMgrByUser::updateOrderInfo(tagXTTwapInputOrderField *input)
 
 int TwapOrderMgrByUser::OnTwapOrderRtn(tagXTTwapOrderField* input)
 {
-    if(!input) return -1;
+    if(!input)
+    {
+        return -1;
+    }
 
     string twapid = input->TwapOrderID;
-    auto search = m_twapOrderCtx[input->TwapOrderType].find(twapid);
-    if(search == m_twapOrderCtx[input->TwapOrderType].end())
-    {
-        return 0;
-    }
     m_twapOrderCtx[input->TwapOrderType][twapid] = *input;
 
     QEventCenter* pEventCenter = GetEventCenter();
@@ -364,7 +362,7 @@ bool TwapOrderMgr::handleBuf(const char *pbuf, int buflen)
             bool bLast = rr.ReadInt8()>0;
             if(rr.IsError())
             {
-                printf("OnRspQryTwapOrder failed\n");
+                qDebug() << "OnRspQryTwapOrder failed";
             }
             else
             {
@@ -386,7 +384,7 @@ bool TwapOrderMgr::handleBuf(const char *pbuf, int buflen)
             bool bLast = rr.ReadInt8()>0;
             if(rr.IsError())
             {
-                printf("OnRspQryTwapOrderDetail failed\n");
+                qDebug() << "OnRspQryTwapOrderDetail failed";
             }
             else
             {
@@ -405,7 +403,7 @@ bool TwapOrderMgr::handleBuf(const char *pbuf, int buflen)
             tagXTTwapOrderField* pField = (tagXTTwapOrderField*)rr.ReadSolidPtr();
             if(rr.IsError())
             {
-                printf("OnTwapOrderRtn failed\n");
+                qDebug() << "OnTwapOrderRtn failed";
             }
             else
             {
@@ -424,7 +422,7 @@ bool TwapOrderMgr::handleBuf(const char *pbuf, int buflen)
             tagXTTwapOrderInsertRtnField* pField = (tagXTTwapOrderInsertRtnField*)rr.ReadSolidPtr();
             if(rr.IsError())
             {
-                printf("OnTwapOrderInsertRtn failed\n");
+                qDebug() << "OnTwapOrderInsertRtn failed\n";
             }
             else
             {
